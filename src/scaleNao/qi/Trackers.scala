@@ -1,4 +1,4 @@
-package scaleNao.api
+package scaleNao.qi
 
 import scaleNao.raw.messages.Module
 
