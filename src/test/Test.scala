@@ -14,7 +14,7 @@ object MyFirstNaoTest extends Actor {
     NaoActor.start
     NaoActor ! nao
     import scaleNao.raw.messages._
-    import scaleNao.api._
+    import scaleNao.qi._
     NaoActor ! Call(Audio.TextToSpeech.say("abc"))
   }
 }
