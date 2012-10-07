@@ -1,7 +1,7 @@
 package scaleNao.raw
 
 import scala.actors.Actor
-import scaleNao.raw.messages.OutMessage
+import scaleNao.raw.messages._
 
 object NaoActor extends Actor {
 
@@ -28,9 +28,11 @@ object NaoActor extends Actor {
             val nia = connect(nao)
             if (nia.isAvailable) {
               trace("is available")
+              sender ! NaoReceived(nao)
               communicating(nia)
             } else {
               trace("is NOT available")
+              sender ! NaoNotFound(nao)
               watching(nia)
             }
           }
@@ -47,8 +49,13 @@ object NaoActor extends Actor {
   def watching(nia: NaoInAction) = {}
 
   def communicating(nia: NaoInAction) = {
+    import scaleNao.qi._
     loop {
-      receive {
+      receive {      
+        case Call(Audio.TextToSpeech.say(x:String)) => {
+          trace("I should say " +  x + "? - Its done. ")
+          sender ! Audio.TextToSpeech.TextDone
+        }
         case m: OutMessage => {
           trace("new message comes in: " + m)
         }
