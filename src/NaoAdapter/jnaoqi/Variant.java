@@ -6,7 +6,7 @@
  * the SWIG interface file instead.
  * ----------------------------------------------------------------------------- */
 
-package com.aldebaran.proxy;
+package NaoAdapter.jnaoqi;
 
 public class Variant {
   private long swigCPtr;
@@ -66,11 +66,11 @@ public class Variant {
   public Variant.typeV getType() {
     return Variant.typeV.swigToEnum(JNaoQiJNI.Variant_getType(swigCPtr, this));
   }
-
-  public SWIGTYPE_p_AL__ALValue getValue() {
-    long cPtr = JNaoQiJNI.Variant_getValue(swigCPtr, this);
-    return (cPtr == 0) ? null : new SWIGTYPE_p_AL__ALValue(cPtr, false);
-  }
+//
+//  public SWIGTYPE_p_AL__ALValue getValue() {
+//    long cPtr = JNaoQiJNI.Variant_getValue(swigCPtr, this);
+//    return (cPtr == 0) ? null : new SWIGTYPE_p_AL__ALValue(cPtr, false);
+//  }
 
   public Variant(byte[] b) {
     this(JNaoQiJNI.new_Variant__SWIG_5(b), true);
@@ -140,13 +140,13 @@ public class Variant {
     return JNaoQiJNI.Variant_getBuffer(swigCPtr, this);
   }
 
-  public SWIGTYPE_p_AL__ALValue toALValue() {
-    return new SWIGTYPE_p_AL__ALValue(JNaoQiJNI.Variant_toALValue(swigCPtr, this), true);
-  }
-
-  public void fromALValue(SWIGTYPE_p_AL__ALValue val) {
-    JNaoQiJNI.Variant_fromALValue(swigCPtr, this, SWIGTYPE_p_AL__ALValue.getCPtr(val));
-  }
+//  public SWIGTYPE_p_AL__ALValue toALValue() {
+//    return new SWIGTYPE_p_AL__ALValue(JNaoQiJNI.Variant_toALValue(swigCPtr, this), true);
+//  }
+//
+//  public void fromALValue(SWIGTYPE_p_AL__ALValue val) {
+//    JNaoQiJNI.Variant_fromALValue(swigCPtr, this, SWIGTYPE_p_AL__ALValue.getCPtr(val));
+//  }
 
   public final static class typeV {
     public final static typeV VINT = new typeV("VINT", JNaoQiJNI.Variant_VINT_get());
