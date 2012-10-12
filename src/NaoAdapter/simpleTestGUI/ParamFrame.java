@@ -10,7 +10,7 @@
  */
 package NaoAdapter.simpleTestGUI;
 
-import NaoAdapter.type.Hawactormsg.MixedValue;
+import NaoAdapter.value.Hawactormsg.MixedValue;
 
 /**
  *

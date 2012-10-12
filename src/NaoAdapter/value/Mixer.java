@@ -1,12 +1,12 @@
-package NaoAdapter.type;
+package NaoAdapter.value;
 
 import com.google.protobuf.ByteString;
 import static NaoAdapter.jnaoqi.Variant.typeV.*;
 import NaoAdapter.jnaoqi.Variant;
-import NaoAdapter.type.Hawactormsg.MixedValue;
+import NaoAdapter.value.Hawactormsg.MixedValue;
 
 //Konvertierungsklasse für Variant und Protobuf.MixedValue
-public class JAdapter {
+public class Mixer {
     public static MixedValue convert(Variant variant) throws InvalidValueException {
         MixedValue.Builder builder = MixedValue.newBuilder();
         
@@ -93,7 +93,7 @@ public class JAdapter {
             StringBuilder s = new StringBuilder();
             s.append("[");
             for(int i = 0;;) {
-                s.append(JAdapter.toString(mixed.getArray(i++)));
+                s.append(Mixer.toString(mixed.getArray(i++)));
                 if (i < mixed.getArrayCount())
                     s.append(" ,");
                 else 
