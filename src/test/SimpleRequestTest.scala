@@ -9,7 +9,7 @@ import NaoAdapter._
 object SimpleRequestTest extends App {
   
   val socket = z.MQ.socket()
-  sequence
+  say("Hey Ho")
 
   def answer = {
     val protoResponse = HAWActorRPCResponse.parseFrom(socket.recv(0))
@@ -23,7 +23,6 @@ object SimpleRequestTest extends App {
   }
 
   def request(module: String, method: String, params: List[MixedValue]) {
-    //    val params = mix(p)
     val param = HAWActorRPCRequest.newBuilder().setModule(module).setMethod(method);
     for (mixed <- params) {
       param.addParams(mixed)
@@ -34,12 +33,7 @@ object SimpleRequestTest extends App {
     answer
   }
 
-  implicit def string2Variant(s: String) = MixedValue.newBuilder().setString(s).build()
-
-  def closeHandL = {
-    request("ALMotion", "closeHand", List("LHand"))
-    
-  }
+  implicit def string2Mixed(s: String) = MixedValue.newBuilder().setString(s).build()
   
   def sequence = {
     openHandL
@@ -47,7 +41,9 @@ object SimpleRequestTest extends App {
     closeHandR
     closeHandL
   }
-  
+ 
+  def say(s:String="Hello!") = request("ALTextToSpeech", "say", List(s))
+  def closeHandL = request("ALMotion", "closeHand", List("LHand"))
   def openHandL = request("ALMotion", "openHand", List("LHand"))
   def closeHandR = request("ALMotion", "closeHand", List("RHand"))
   def openHandR = request("ALMotion", "openHand", List("RHand"))

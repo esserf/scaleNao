@@ -1,7 +1,5 @@
 package scaleNao.raw.messages
 
-import scaleNao.raw.NaoActor._
-
 trait ErrorMessage extends Message
 
 case object OutMessageNotAllowed extends ErrorMessage

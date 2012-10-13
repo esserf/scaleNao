@@ -1,67 +1,53 @@
 package scaleNao.raw
 
-import scala.actors.Actor
 import scaleNao.raw.messages._
+import akka.actor.Actor
+import akka.actor.ActorSystem
+import akka.actor.Props
+import akka.actor.ActorRef
 
-object NaoActor extends Actor {
+class NaoActor extends Actor {
 
-  case class Nao(title: String, host: String, port: Int)
-  case object Nao
-  trait NaoInAction {
-    def isAvailable: Boolean
-  }
-  case class Available(nao: Nao) extends NaoInAction {
-    def isAvailable = true
-  }
-  case class Unavailable(nao: Nao) extends NaoInAction {
-    def isAvailable = false
-  }
-
-  def act = waiting
-
-  def waiting = {
-    loop {
-      receive {
-        case nao: Nao =>
-          {
-        	trace(nao + " comes in")
-            val nia = connect(nao)
-            if (nia.isAvailable) {
-              trace("is available")
-              sender ! NaoReceived(nao)
-              communicating(nia)
-            } else {
-              trace("is NOT available")
-              sender ! NaoNotFound(nao)
-              watching(nia)
-            }
-          }
-        case x => {
-          wrongMessage(x)
+  import scaleNao.raw.messages._
+  import context._
+  
+  def receive = {
+    case (userActor: ActorRef, nao: Nao) =>
+      {
+        trace(nao + " comes in")
+        val nia = connect(nao)
+        if (nia.isAvailable) {
+          trace("is available")
+          userActor ! NaoReceived(nao)
+          become(communicating(nia))
+        } else {
+          trace("is NOT available")
+          userActor ! NaoNotFound(nao)
         }
       }
-    }
+    case x => !!!(x, "receive")
   }
 
   /**
    * TODO watching:not implemented yet
    */
-  def watching(nia: NaoInAction) = {}
+  def watching(nia: NaoInAction) = {
+    trace("TODO watching:not implemented yet")
+  }
 
-  def communicating(nia: NaoInAction) = {
-    import scaleNao.qi._
-    loop {
-      receive {      
-        case Call(Audio.TextToSpeech.say(x:String)) => {
-          trace("I should say " +  x + "? - Its done. ")
-          sender ! Audio.TextToSpeech.TextDone
-        }
-        case m: OutMessage => {
-          trace("new message comes in: " + m)
-        }
-        case x => trace("something stupid: " + x)
-      }
+  import scaleNao.qi._
+  def communicating(nia: NaoInAction): Receive = {
+    case Call(Audio.TextToSpeech.say(x: String)) => {
+      trace("I should say " + x + "? - Its done. ")
+       
+      import test.SimpleRequestTest._
+      request("TextToSpeech","say",List(x))
+      sender ! Audio.TextToSpeech.TextDone
     }
+    case m: OutMessage => {
+      trace("new message comes in: " + m)
+    }
+    case x => !!!(x, "receive")
   }
 
   /**
@@ -69,7 +55,12 @@ object NaoActor extends Actor {
    */
   def connect(nao: Nao) = Available(nao)
 
+  def !!!(x: Any, state: String) = {
+    val msg = "wrong message: " + x
+    error(msg)
+    sender ! msg
+  }
   def trace(a: Any) = println("NaoActor: " + a)
-  def error(a: Any) = trace(" error: " + a)
-  def wrongMessage(a: Any)  = error("wrong messaage: " + a)
+  def error(a: Any) = trace("error: " + a)
+  def wrongMessage(a: Any, state: String) = error("wrong messaage: " + a)
 }
