@@ -7,6 +7,6 @@ import scaleNao.raw.NaoGuardian
 object System{
   import test._
   val system = ActorSystem("scaleNaoSystem")
+  println("ActorSystem " + system.name + " is started")
   val naoGuardian = system.actorOf(Props[NaoGuardian], name = "NaoGuardian")
-  println("ActorSystem " + system.name + " with NaoGuardian is started")
 }

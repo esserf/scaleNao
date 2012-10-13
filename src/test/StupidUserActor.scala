@@ -12,7 +12,7 @@ class StupidUserActor extends Actor {
   import context._
   
   val naoGuardian = scaleNao.System.naoGuardian
-  val nao = Nao("Nila", "localhost", 5555)
+  val nao = Nao("Nila", "127.0.0.1", 5555)
   
   override def preStart {
     trace("SimpleAkkaCommunicationTest with " + nao)
@@ -22,7 +22,7 @@ class StupidUserActor extends Actor {
   def receive = {
     case NaoReceived(nao) => {
       trace("naoActor received: " + (nao,sender))
-      sender ! Call(Audio.TextToSpeech.say("abc"))
+      sender ! Call(Audio.TextToSpeech.say("Hello World!"))
       become(communicateWith(nao,sender))
     }
     case x => error("Wrong message: " + x)

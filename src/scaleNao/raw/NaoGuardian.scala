@@ -10,9 +10,10 @@ import akka.actor.ActorRef
 
 class NaoGuardian extends Actor {
   val naoActor = context.actorOf(Props[NaoActor], name = "NaoActor")
-  println("NaoGuardian is started")
+  trace("is started: " + self)
   import akka.actor.SupervisorStrategy._
   import context._
+  
   override val supervisorStrategy =
     OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = Duration(1, "minute")) {
       case _: ArithmeticException ⇒ Resume
