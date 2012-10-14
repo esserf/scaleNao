@@ -1,6 +1,7 @@
 package scaleNao.raw.messages
 
 import akka.actor.ActorRef
+import scaleNao.raw.messages.Messages.Call
 
 trait InfoMessage extends Message
 

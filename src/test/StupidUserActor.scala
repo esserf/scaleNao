@@ -5,8 +5,10 @@ import akka.actor.ActorSystem
 import akka.actor.Props
 import akka.actor.ActorRef
 
+
 class StupidUserActor extends Actor {
   import scaleNao.raw._
+  import scaleNao.raw.messages.Messages._
   import scaleNao.raw.messages._
   import scaleNao.qi._
   import context._
@@ -22,14 +24,14 @@ class StupidUserActor extends Actor {
   def receive = {
     case NaoReceived(nao) => {
       trace("naoActor received: " + (nao,sender))
-      sender ! Call(Audio.TextToSpeech.say("Hello World!"))
+      sender ! Call('ALTextToSpeech,'say,List("Hello World!"))
       become(communicateWith(nao,sender))
     }
     case x => error("Wrong message: " + x)
   }
   
   def communicateWith(nao:Nao,naoActor: ActorRef): Receive = {
-    case Audio.TextToSpeech.TextDone => {
+    case x => {
       trace("Text is done")
       trace("Cool, I'm finished")
     }

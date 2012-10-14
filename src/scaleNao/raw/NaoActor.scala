@@ -6,6 +6,8 @@ import akka.actor.ActorSystem
 import akka.actor.Props
 import akka.actor.ActorRef
 import akka.zeromq.ZMQMessage
+import scaleNao.raw.messages.Messages._
+import NaoAdapter.value.Hawactormsg.MixedValue
 
 class NaoActor extends Actor {
 
@@ -39,9 +41,9 @@ class NaoActor extends Actor {
 
   import scaleNao.qi._
   def communicating(nia: NaoInAction): Receive = {
-    case Call(Audio.TextToSpeech.say(x: String)) => {     
-      request(nia.socket,"ALTextToSpeech", "say",List(x))
-      sender ! Audio.TextToSpeech.TextDone
+    case Call(Module(module:Symbol),Method(method:Symbol),parameter:List[MixedValue]) => {     
+      request(nia.socket,module, method,parameter)
+//      sender ! Audio.TextToSpeech.TextDone
     }
     case m: OutMessage => {
       trace("new message from Nao comes in: " + m)
@@ -79,7 +81,6 @@ class NaoActor extends Actor {
     socket ! msg  
   }
 
-  implicit def string2Mixed(s: String) = MixedValue.newBuilder().setString(s).build()
 
   def connect(nao: Nao) = {
     import akka.zeromq._   
