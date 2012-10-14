@@ -8,7 +8,10 @@ import NaoAdapter._
 
 object SimpleRequestTest extends App {
   
-  val socket = z.MQ.socket()
+  val address = "tcp://127.0.0.1:5555"
+  val socket = z.MQ.socket(url = address)
+  trace("Socket binded with " + address)
+  
   say("Hey Ho")
 
   def answer = {
@@ -21,8 +24,17 @@ object SimpleRequestTest extends App {
       trace("-> Empty \n");
     }
   }
+  
+  def toString(params: List[MixedValue]): String = {
+    if (params.isEmpty)
+      ""
+    else
+      "(" + params.first.getString() + ")" + toString(params.tail)
+  }
 
   def request(module: String, method: String, params: List[MixedValue]) {
+    trace("request: " +  module + "." + method + "" + toString(params))
+
     val param = HAWActorRPCRequest.newBuilder().setModule(module).setMethod(method);
     for (mixed <- params) {
       param.addParams(mixed)

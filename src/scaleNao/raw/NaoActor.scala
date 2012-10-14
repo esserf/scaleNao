@@ -39,14 +39,12 @@ class NaoActor extends Actor {
 
   import scaleNao.qi._
   def communicating(nia: NaoInAction): Receive = {
-    case Call(Audio.TextToSpeech.say(x: String)) => {
-      trace("I should say " + x + "? - Its done. ")
-        
+    case Call(Audio.TextToSpeech.say(x: String)) => {     
       request(nia.socket,"ALTextToSpeech", "say",List(x))
       sender ! Audio.TextToSpeech.TextDone
     }
     case m: OutMessage => {
-      trace("new message comes in: " + m)
+      trace("new message from Nao comes in: " + m)
     }
     case x => !!!(x, "receive")
   }
@@ -61,10 +59,18 @@ class NaoActor extends Actor {
 //      trace("-> Empty \n");
 //    }
 //  }
-
+ 
   import NaoAdapter.value.Hawactormsg._
   import NaoAdapter.value.Mixer
+  def toString(params: List[MixedValue]): String = {
+    if (params.isEmpty)
+      ""
+    else
+      "(" + params.first.getString() + ")" + toString(params.tail)
+  }
+
   def request(socket:ActorRef,module: String, method: String, params: List[MixedValue]) {
+    trace("request: " +  module + "." + method + "" + toString(params))
     val param = HAWActorRPCRequest.newBuilder().setModule(module).setMethod(method);
     for (mixed <- params)
       param.addParams(mixed)
@@ -75,18 +81,12 @@ class NaoActor extends Actor {
 
   implicit def string2Mixed(s: String) = MixedValue.newBuilder().setString(s).build()
 
-  /**
-   * TODO connect:not implemented yet
-   */
   def connect(nao: Nao) = {
     import akka.zeromq._   
     val address = "tcp://" + nao.host + ":" + nao.port
-    val zmq = ZeroMQExtension(system).newSocket(SocketType.Req, Bind(address))
-//    val zmqProps = ZeroMQExtension(system).newSocketProps(SocketType.Req, Bind(address))
-//    context.actorFor("../../zeromq") // zmq guardian
-//    context.actorFor("../../zeromq") ! zmqProps
-    trace("zmq Actor is started: " + zmq)
-    Available(nao,zmq)  
+    val zmq = ZeroMQExtension(system).newSocket(SocketType.Req, Connect(address))
+    trace("zmq Actor is started: " + zmq + " binded with " + address)
+    Available(nao,zmq)  // connecting check not implemented yet
   }
 
   def !!!(x: Any, state: String) = {
