@@ -14,6 +14,9 @@ import akka.actor.ActorRef
  * TODO erkennen, dass der Nao nicht erreichbar ist
  * TODO Shutdown
  * TODO Superviser auf Herz und Nieren prüfen
+ * 
+ * Frage an David: toString direkt in MixexValue integrierbar?
+ * Frage an David: EmptyValue wie erstellbar? Überhaupt erstellbar?
  */
 object AkkaTest extends App {
   scaleNao.System

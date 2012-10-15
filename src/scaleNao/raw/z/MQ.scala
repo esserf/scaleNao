@@ -6,6 +6,8 @@ import org.zeromq.ZMQ.REQ
 import scaleNao.raw.messages.Messages.Answer
 import NaoAdapter.value.Hawactormsg.HAWActorRPCResponse
 import scaleNao.raw.messages.Messages.Call
+import scaleNao.raw.messages.InvalidAnswer
+import NaoAdapter.value.Mixer
 
 object MQ {
 
@@ -18,18 +20,17 @@ object MQ {
   }
 
   def answer(protoResponse: HAWActorRPCResponse, c: Call) = {
-    ZMQMessage(protoResponse)
     if (protoResponse.hasError) {
-      None
-    } else if (protoResponse.hasReturnval) {
+      InvalidAnswer(c)
+    } 
+    else if (protoResponse.hasReturnval) {
       Answer(c,protoResponse.getReturnval)
     } else {
-      None
+      Answer(c,Mixer.empty.getReturnval())
     }
   }
 
   import NaoAdapter.value.Hawactormsg._
-  import NaoAdapter.value.Mixer
   def toString(params: List[MixedValue]): String = {
     if (params.isEmpty)
       ""

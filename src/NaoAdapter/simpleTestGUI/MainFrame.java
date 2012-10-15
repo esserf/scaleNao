@@ -26,8 +26,8 @@ import javax.swing.ListModel;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
-import static NaoAdapter.value.Mixer.*;
-import NaoAdapter.value.Mixer;
+import static NaoAdapter.value.JAdapter.*;
+import NaoAdapter.value.JAdapter;
 import NaoAdapter.value.Hawactormsg.HAWActorRPCRequest;
 import NaoAdapter.value.Hawactormsg.HAWActorRPCResponse;
 import NaoAdapter.value.Hawactormsg.MixedValue;
@@ -430,7 +430,7 @@ private void invokeRPC(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_invoke
                     txtResult.insert("Error: " + protoResponse.getError() + "\n",0);
                     txtStatus.setText("RPC abgeschlossen");
                 } else if (protoResponse.hasReturnval()){
-                    txtResult.insert("-> " + Mixer.toString(protoResponse.getReturnval()) + "\n",0); 
+                    txtResult.insert("-> " + JAdapter.toString(protoResponse.getReturnval()) + "\n",0); 
                     txtStatus.setText("RPC abgeschlossen");
                 } else {
                     txtResult.insert("-> Empty response\n",0);
@@ -489,7 +489,7 @@ class ProtobufListModel implements ListModel, Iterable<MixedValue> {
     
     @Override
     public Object getElementAt(int i) {
-        return Mixer.toString(variants.get(i));
+        return JAdapter.toString(variants.get(i));
     }
 
     @Override

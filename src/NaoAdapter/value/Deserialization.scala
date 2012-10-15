@@ -7,29 +7,21 @@ import NaoAdapter.value.Hawactormsg.HAWActorRPCResponse
 import test.SimpleRequestTest
 import com.google.protobuf.ByteString
 
-
 object ProtoDeserializer extends Deserializer {
-  
-    def seqToByteArray(seq: Seq[Array[Byte]]):Array[Byte] = {
-    if (seq.isEmpty){
+
+  private def seqToByteArray(seq: Seq[Array[Byte]]): Array[Byte] = {
+    if (seq.isEmpty) {
       Array[Byte]()
-    }
-    else
+    } else
       seq.first ++ seqToByteArray(seq.tail)
   }
-  def toByteArray(frames: Seq[Frame]):Array[Byte] = {
-    val seq = frames map (x => x.payload.toArray) 
+  private def toByteArray(frames: Seq[Frame]): Array[Byte] = {
+    val seq = frames map (x => x.payload.toArray)
     seqToByteArray(seq)
   }
-	def apply(frames: Seq[Frame]) = HAWActorRPCResponse.parseFrom(ByteString.copyFrom(toByteArray(frames)))
+  def apply(frames: Seq[Frame]) = HAWActorRPCResponse.parseFrom(ByteString.copyFrom(toByteArray(frames)))
+  def apply(frames: Array[Byte]) = HAWActorRPCResponse.parseFrom(frames)
+
 }
 
-object Test extends App{
-  test
-  def test = {
-    val t = Seq(Frame("abc"))
-    println(t)
-    println(ProtoDeserializer.toByteArray(t).deep)
-  }
- }
 

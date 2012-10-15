@@ -6,7 +6,7 @@ import NaoAdapter.jnaoqi.Variant;
 import NaoAdapter.value.Hawactormsg.MixedValue;
 
 //Konvertierungsklasse für Variant und Protobuf.MixedValue
-public class Mixer {
+public class JAdapter {
     public static MixedValue convert(Variant variant) throws InvalidValueException {
         MixedValue.Builder builder = MixedValue.newBuilder();
         
@@ -93,7 +93,7 @@ public class Mixer {
             StringBuilder s = new StringBuilder();
             s.append("[");
             for(int i = 0;;) {
-                s.append(Mixer.toString(mixed.getArray(i++)));
+                s.append(JAdapter.toString(mixed.getArray(i++)));
                 if (i < mixed.getArrayCount())
                     s.append(" ,");
                 else 
@@ -104,7 +104,9 @@ public class Mixer {
         } else 
             return "Empty";
     }
+    
 }
+
 
 class InvalidValueException extends Exception {
     public InvalidValueException(String message) {
