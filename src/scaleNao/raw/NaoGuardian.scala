@@ -28,12 +28,17 @@ class NaoGuardian extends Actor {
     case x => !!!(x,"receive")
   }
   
+//  def binding: Receive(bindings:Map[()]) = {
+//    case n: Nao => naoActor ! (sender,n)
+//    case x => !!!(x,"receive")
+//  }
+  
   def !!!(x:Any,state:String) = {
-      val msg = "wrong message: " + x
+    val msg = "wrong message: " + x + " at " + state
       error(msg)
       sender ! msg
   }
   def trace(a: Any) = println("NaoGuardian: " + a)
   def error(a: Any) = trace("error: " + a)
-  def wrongMessage(a: Any,state:String) = error("wrong messaage: " + a)
+  def wrongMessage(a: Any, state: String) = error("wrong messaage: " + a + " at " + state)
 }

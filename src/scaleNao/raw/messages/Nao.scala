@@ -16,3 +16,6 @@ import akka.actor._
     def isAvailable = false
     def socket = scaleNao.System.system.actorOf(Props[Nothing], name = "NoActor")
   }
+  
+  case class Binding(userActr:ActorRef,nao:Nao,naoActor:ActorRef)
+  case object Binding

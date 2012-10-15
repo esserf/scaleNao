@@ -12,7 +12,7 @@ object SimpleRequestTest extends App {
   val socket = z.MQ.socket(url = address)
   trace("Socket binded with " + address)
   
-  say("Hey Ho")
+  getVolume
 
   def answer = {
     val protoResponse = HAWActorRPCResponse.parseFrom(socket.recv(0))
@@ -32,7 +32,7 @@ object SimpleRequestTest extends App {
       "(" + params.first.getString() + ")" + toString(params.tail)
   }
 
-  def request(module: String, method: String, params: List[MixedValue]) {
+  def request(module: String, method: String, params: List[MixedValue] = Nil) {
     trace("request: " +  module + "." + method + "" + toString(params))
 
     val param = HAWActorRPCRequest.newBuilder().setModule(module).setMethod(method);
@@ -53,8 +53,9 @@ object SimpleRequestTest extends App {
     closeHandR
     closeHandL
   }
- 
-  def say(s:String="Hello!") = request("ALTextToSpeech", "say", List(s))
+  
+  def getVolume = request("ALTextToSpeech", "getVolume") 
+  def say(s:String) = request("ALTextToSpeech", "say", List(s))
   def closeHandL = request("ALMotion", "closeHand", List("LHand"))
   def openHandL = request("ALMotion", "openHand", List("LHand"))
   def closeHandR = request("ALMotion", "closeHand", List("RHand"))

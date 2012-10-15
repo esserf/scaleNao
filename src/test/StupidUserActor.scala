@@ -24,16 +24,16 @@ class StupidUserActor extends Actor {
   def receive = {
     case NaoReceived(nao) => {
       trace("naoActor received: " + (nao,sender))
+//      sender ! Call('ALTextToSpeech,'getVolume)
       sender ! Call('ALTextToSpeech,'say,List("Hello World!"))
-      become(communicateWith(nao,sender))
+      become(waitOnAnswer(nao,sender))
     }
     case x => error("Wrong message: " + x)
   }
   
-  def communicateWith(nao:Nao,naoActor: ActorRef): Receive = {
+  def waitOnAnswer(nao:Nao,naoActor: ActorRef): Receive = {
     case x => {
-      trace("Text is done")
-      trace("Cool, I'm finished")
+      trace("Answer:" + x)
     }
   }
 
