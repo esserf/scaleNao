@@ -1,6 +1,7 @@
 package scaleNao.raw.messages
 
 import NaoAdapter.value.Hawactormsg.MixedValue
+import NaoAdapter.value.Mixer
 
 object Messages {
 
@@ -8,10 +9,14 @@ object Messages {
   trait InMessage
   trait OutMessage
 
-  case class Call(module: Module, method: Method, paramters: List[MixedValue] = Nil) extends DataMessage with OutMessage
+  case class Call(module: Module, method: Method, paramters: List[MixedValue] = Nil) extends DataMessage with OutMessage {
+    override def toString = "Call(" + module + "," + method + "," + paramters.map(x => Mixer.toString(x)) + ")"
+  }
   case object Call
 
-  case class Answer(val call: Call, val value: MixedValue) extends DataMessage with OutMessage
+  case class Answer(val call: Call, val value: MixedValue) extends DataMessage with OutMessage {
+    override def toString = "Answer(" + call + "," + Mixer.toString(value) + ")"
+  }
   case object Answer
 
   trait Event extends DataMessage with InMessage
@@ -22,7 +27,6 @@ object Messages {
   case class Method(title: Symbol)
   case object Method
 
-  
   implicit def string2Mixed(s: String) = MixedValue.newBuilder().setString(s).build()
   implicit def int2Mixed(i: Int) = MixedValue.newBuilder().setInt(i).build()
   implicit def float2Mixed(f: Float) = MixedValue.newBuilder().setFloat(f).build()
@@ -31,7 +35,7 @@ object Messages {
   implicit def string2Module(s: Symbol) = Module(s)
   implicit def string2Method(s: Symbol) = Method(s)
 
-  implicit def symbol2String(s:Symbol) = s.name
-  implicit def string2Symbol(s:String) = Symbol(s)
-  
+  implicit def symbol2String(s: Symbol) = s.name
+  implicit def string2Symbol(s: String) = Symbol(s)
+
 }

@@ -9,7 +9,7 @@ import NaoAdapter._
 object SimpleRequestTest extends App {
   
   val address = "tcp://127.0.0.1:5555"
-  val socket = z.MQ.socket(url = address)
+  val socket = scaleNao.raw.z.MQ.socket(url = address)
   trace("Socket binded with " + address)
   
   getVolume

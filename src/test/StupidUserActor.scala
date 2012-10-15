@@ -5,7 +5,6 @@ import akka.actor.ActorSystem
 import akka.actor.Props
 import akka.actor.ActorRef
 
-
 class StupidUserActor extends Actor {
   import scaleNao.raw._
   import scaleNao.raw.messages.Messages._
@@ -32,7 +31,7 @@ class StupidUserActor extends Actor {
   }
   
   def waitOnAnswer(nao:Nao,naoActor: ActorRef): Receive = {
-    case x => {
+    case x:Answer => {
       trace("Answer:" + x)
     }
   }

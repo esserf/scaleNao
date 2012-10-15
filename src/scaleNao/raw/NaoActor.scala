@@ -1,21 +1,18 @@
 package scaleNao.raw
 
-import scaleNao.raw.messages._
 import akka.actor.Actor
-import akka.actor.ActorSystem
-import akka.actor.Props
 import akka.actor.ActorRef
-import akka.zeromq.ZMQMessage
-import scaleNao.raw.messages.Messages._
-import NaoAdapter.value.Hawactormsg.MixedValue
-import NaoAdapter.value.Hawactormsg.HAWActorRPCResponse
-import NaoAdapter.value.Mixer
-import NaoAdapter.value.ProtoDeserializer
 
 class NaoActor extends Actor {
-
+  
+  import akka.zeromq.ZMQMessage
+  import scaleNao.raw.z.MQ._
+  import NaoAdapter.value._
+  import NaoAdapter.value.Hawactormsg._
   import scaleNao.raw.messages._
+  import scaleNao.raw.messages.Messages._
   import context._
+  import NaoAdapter.value._
   trace("is started: " + self)
 
   def receive = {
@@ -46,52 +43,22 @@ class NaoActor extends Actor {
   import scaleNao.qi._
   def communicating(nia: NaoInAction): Receive = {
     case Call(Module(module: Symbol), Method(method: Symbol), parameter: List[MixedValue]) => {
-      request(nia.socket, module, method, parameter)
-      become(waitOnAnswer(nia, sender))
+      trace("request: " + module + "." + method + "" + z.MQ.toString(parameter))
+      nia.socket ! request(module, method, parameter)
+      become(waitOnAnswer(nia, sender,Call(module,method,parameter)))
     }
     case Connecting =>
     case x => !!!(x, "communicating")
   }
 
-  def waitOnAnswer(nia: NaoInAction, userActor: ActorRef): Receive = {
+  def waitOnAnswer(nia: NaoInAction, userActor: ActorRef,c:Call): Receive = {
     case m: ZMQMessage => {
-      trace("Answer from Nao: " + m)     
-      userActor ! answer(ProtoDeserializer(m.frames))
+      trace(m)
+      userActor ! answer(ProtoDeserializer(m.frames),c)
+      unbecome
     }
     case Connecting =>
     case x => !!!(x, "waitOnAnswer")
-  }
-
-  def answer(protoResponse: HAWActorRPCResponse) = {
-    ZMQMessage(protoResponse)
-    if (protoResponse.hasError) {
-      trace("Error: " + protoResponse.getError)
-      None
-    } else if (protoResponse.hasReturnval) {
-      val m = Mixer.toString(protoResponse.getReturnval)
-      trace("-> " + m)
-      Some(m)
-    } else {
-      trace("-> Empty \n");
-      None
-    }
-  }
-
-  import NaoAdapter.value.Hawactormsg._
-  import NaoAdapter.value.Mixer
-  def toString(params: List[MixedValue]): String = {
-    if (params.isEmpty)
-      ""
-    else
-      "(" + params.first.getString() + ")" + toString(params.tail)
-  }
-
-  def request(socket: ActorRef, module: String, method: String, params: List[MixedValue]) {
-    trace("request: " + module + "." + method + "" + toString(params))
-    val param = HAWActorRPCRequest.newBuilder().setModule(module).setMethod(method);
-    for (mixed <- params)
-      param.addParams(mixed)
-    socket ! ZMQMessage(param.build)
   }
 
   def connect(nao: Nao) = {

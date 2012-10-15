@@ -6,12 +6,11 @@ import akka.actor.Props
 import akka.actor.ActorRef
 
 /**
- * TODO Answers / Events
+ * TODO Events
  * TODO mehrere Nachrichten
  * TODO mehrere Sender
  * TODO ZeroMQ via Supervisor starten und dann NaoActor für je einen Nao starten
  * TODO erkennen, dass der Nao nicht erreichbar ist
- * TODO ZeroMQ util methods auslagern
  * TODO Shutdown
  * TODO Superviser auf Herz und Nieren prüfen
  */
