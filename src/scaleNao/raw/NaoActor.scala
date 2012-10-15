@@ -42,10 +42,10 @@ private class NaoActor extends Actor {
   import akka.zeromq.Connecting
   import scaleNao.qi._
   private def communicating(nia: NaoInAction): Receive = {
-    case Call(Module(module: Symbol), Method(method: Symbol), parameter: List[MixedValue]) => {
-      trace("request: " + module + "." + method + "" + z.MQ.toString(parameter))
-      nia.socket ! request(module, method, parameter)
-      become(waitOnAnswer(nia, sender,Call(module,method,parameter)))
+    case c:Call => {
+      trace("request: " + c)
+      nia.socket ! request(c)
+      become(waitOnAnswer(nia, sender,c))
     }
     case Connecting =>
     case x => !!!(x, "communicating")
@@ -53,7 +53,6 @@ private class NaoActor extends Actor {
 
   private def waitOnAnswer(nia: NaoInAction, userActor: ActorRef,c:Call): Receive = {
     case m: ZMQMessage => {
-      trace(m)
       userActor ! answer(ProtoDeserializer(m.frames),c)
       unbecome
     }

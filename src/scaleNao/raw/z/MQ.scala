@@ -31,16 +31,10 @@ object MQ {
   }
 
   import NaoAdapter.value.Hawactormsg._
-  def toString(params: List[MixedValue]): String = {
-    if (params.isEmpty)
-      ""
-    else
-      "(" + params.first.getString() + ")" + toString(params.tail)
-  }
 
-  def request(module: String, method: String, params: List[MixedValue]) = {  
-    val param = HAWActorRPCRequest.newBuilder().setModule(module).setMethod(method);
-    for (mixed <- params)
+  def request(c:Call) = {  
+    val param = HAWActorRPCRequest.newBuilder().setModule(c.module.title.name).setMethod(c.method.title.name);
+    for (mixed <- c.parameters)
       param.addParams(mixed)
     ZMQMessage(param.build)
   }

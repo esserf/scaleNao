@@ -9,13 +9,13 @@ object Messages {
   trait InMessage
   trait OutMessage
 
-  case class Call(module: Module, method: Method, paramters: List[MixedValue] = Nil) extends DataMessage with OutMessage {
-    override def toString = "Call(" + module + "," + method + "," + paramters.map(x => Mixer.toString(x)) + ")"
+  case class Call(module: Module, method: Method, parameters: List[MixedValue] = Nil) extends DataMessage with OutMessage {
+    override def toString = "Call(" + module.title.name + "." + method.title.name + "(" +  parameters.map(x => Mixer.toString(x)).reduceLeft((r,x) => (r + "(" + x)) + ")" + "))"
   }
   case object Call
 
   case class Answer(val call: Call, val value: MixedValue) extends DataMessage with OutMessage {
-    override def toString = "Answer(" + call + "," + Mixer.toString(value) + ")"
+    override def toString = "Answer(" + call + ": " + Mixer.toString(value) + ")"
   }
   case object Answer
 
