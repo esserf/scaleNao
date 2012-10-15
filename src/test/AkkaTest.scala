@@ -8,6 +8,7 @@ import akka.actor.ActorRef
 /**
  * TODO Events
  * TODO mehrere Nachrichten
+ * TODO Answers kommen nicht immer an
  * TODO mehrere Sender
  * TODO ZeroMQ via Supervisor starten und dann NaoActor für je einen Nao starten
  * TODO erkennen, dass der Nao nicht erreichbar ist

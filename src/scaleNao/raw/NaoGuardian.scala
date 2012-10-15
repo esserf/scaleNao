@@ -13,7 +13,7 @@ class NaoGuardian extends Actor {
   trace("is started: " + self)
   import akka.actor.SupervisorStrategy._
   import context._
-  
+
   override val supervisorStrategy =
     OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = Duration(1, "minute")) {
       case _: ArithmeticException ⇒ Resume
@@ -24,21 +24,21 @@ class NaoGuardian extends Actor {
   context.watch(naoActor)
 
   def receive = {
-    case n: Nao => naoActor ! (sender,n)
-    case x => !!!(x,"receive")
+    case n: Nao => naoActor ! (sender, n)
+    case x => !!!(x, "receive")
   }
-  
-//  def binding: Receive(bindings:Map[()]) = {
-//    case n: Nao => naoActor ! (sender,n)
-//    case x => !!!(x,"receive")
-//  }
-  
-  def !!!(x:Any,state:String) = {
+
+  //  def binding: Receive(bindings:Map[()]) = {
+  //    case n: Nao => naoActor ! (sender,n)
+  //    case x => !!!(x,"receive")
+  //  }
+
+  private def !!!(x: Any, state: String) = {
     val msg = "wrong message: " + x + " at " + state
-      error(msg)
-      sender ! msg
+    error(msg)
+    sender ! msg
   }
-  def trace(a: Any) = println("NaoGuardian: " + a)
-  def error(a: Any) = trace("error: " + a)
-  def wrongMessage(a: Any, state: String) = error("wrong messaage: " + a + " at " + state)
+  private def trace(a: Any) = println("NaoGuardian: " + a)
+  private def error(a: Any) = trace("error: " + a)
+  private def wrongMessage(a: Any, state: String) = error("wrong messaage: " + a + " at " + state)
 }

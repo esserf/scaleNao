@@ -3,7 +3,7 @@ package scaleNao.raw
 import akka.actor.Actor
 import akka.actor.ActorRef
 
-class NaoActor extends Actor {
+private class NaoActor extends Actor {
   
   import akka.zeromq.ZMQMessage
   import scaleNao.raw.z.MQ._
@@ -35,13 +35,13 @@ class NaoActor extends Actor {
   /**
    * TODO watching:not implemented yet
    */
-  def watching(nia: NaoInAction) = {
+  private def watching(nia: NaoInAction) = {
     trace("TODO watching:not implemented yet")
   }
 
   import akka.zeromq.Connecting
   import scaleNao.qi._
-  def communicating(nia: NaoInAction): Receive = {
+  private def communicating(nia: NaoInAction): Receive = {
     case Call(Module(module: Symbol), Method(method: Symbol), parameter: List[MixedValue]) => {
       trace("request: " + module + "." + method + "" + z.MQ.toString(parameter))
       nia.socket ! request(module, method, parameter)
@@ -51,7 +51,7 @@ class NaoActor extends Actor {
     case x => !!!(x, "communicating")
   }
 
-  def waitOnAnswer(nia: NaoInAction, userActor: ActorRef,c:Call): Receive = {
+  private def waitOnAnswer(nia: NaoInAction, userActor: ActorRef,c:Call): Receive = {
     case m: ZMQMessage => {
       trace(m)
       userActor ! answer(ProtoDeserializer(m.frames),c)
@@ -61,7 +61,7 @@ class NaoActor extends Actor {
     case x => !!!(x, "waitOnAnswer")
   }
 
-  def connect(nao: Nao) = {
+  private def connect(nao: Nao) = {
     import akka.zeromq._
     import NaoAdapter.value.ProtoDeserializer
     val address = "tcp://" + nao.host + ":" + nao.port
@@ -74,12 +74,12 @@ class NaoActor extends Actor {
     Available(nao, zmq) // connecting check not implemented yet
   }
 
-  def !!!(x: Any, state: String) = {
+  private def !!!(x: Any, state: String) = {
     val msg = "wrong message: " + x + " at " + state
     error(msg)
     sender ! msg
   }
-  def trace(a: Any) = println("NaoActor: " + a)
-  def error(a: Any) = trace("error: " + a)
-  def wrongMessage(a: Any, state: String) = error("wrong messaage: " + a + " at " + state)
+  private def trace(a: Any) = println("NaoActor: " + a)
+  private def error(a: Any) = trace("error: " + a)
+  private def wrongMessage(a: Any, state: String) = error("wrong messaage: " + a + " at " + state)
 }
