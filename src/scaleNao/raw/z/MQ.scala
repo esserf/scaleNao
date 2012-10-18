@@ -33,7 +33,7 @@ object MQ {
   import NaoAdapter.value.Hawactormsg._
 
   def request(c:Call) = {  
-    val param = HAWActorRPCRequest.newBuilder().setModule(c.module.title.name).setMethod(c.method.title.name);
+    val param = HAWActorRPCRequest.newBuilder().setModule(c.module.title).setMethod(c.method.title);
     for (mixed <- c.parameters)
       param.addParams(mixed)
     ZMQMessage(param.build)

@@ -13,7 +13,7 @@ case class InvalidAnswer(c:Call) extends ErrorMessage
 case class CallTimedOut(c:Call) extends ErrorMessage
 case object CallTimedOut
 
-case class NaoNotFound(nao:Nao) extends InfoMessage
+case class NotSubscribable(nao:Nao) extends InfoMessage
 case object NaoNotFound
 
 case class NaoLost(nao:Nao) extends InfoMessage

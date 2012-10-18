@@ -109,7 +109,8 @@ public class JAdapter {
 
 
 class InvalidValueException extends Exception {
-    public InvalidValueException(String message) {
+	private static final long serialVersionUID = -2405522202086533025L;
+	public InvalidValueException(String message) {
         super(message);
     }
 }

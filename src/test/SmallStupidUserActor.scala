@@ -16,7 +16,7 @@ class SmallStupidUserActor extends Actor {
   }
 
   def receive = {
-    case NaoReceived(nao) => {
+    case Subscribed(nao) => {
       sender ! Call('ALTextToSpeech, 'say, List("Hello World!"))
     }
     case x => println("Answer: " + x)

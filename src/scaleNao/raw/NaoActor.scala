@@ -22,11 +22,11 @@ private class NaoActor extends Actor {
         val nia = connect(nao)
         if (nia.isAvailable) {
           trace("is available")
-          userActor ! NaoReceived(nao)
+          userActor ! Subscribed(nao)
           become(communicating(nia))
         } else {
           trace("is NOT available")
-          userActor ! NaoNotFound(nao)
+          userActor ! NotSubscribable(nao)
         }
       }
     case x => !!!(x, "receive")
