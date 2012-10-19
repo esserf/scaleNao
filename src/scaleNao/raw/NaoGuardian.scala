@@ -7,6 +7,7 @@ import akka.actor.OneForOneStrategy
 import akka.util.Duration
 import scaleNao.raw.messages._
 import akka.actor.ActorRef
+import scala.collection.immutable.HashMap
 
 class NaoGuardian extends Actor {
   val naoActor = context.actorOf(Props[NaoActor], name = "NaoActor")
@@ -24,14 +25,17 @@ class NaoGuardian extends Actor {
   context.watch(naoActor)
 
   def receive = {
-    case n: Nao => naoActor ! (sender, n)
+    case n: Nao => {
+      naoActor ! (sender, n)
+      binding(new HashMap() + (n -> (naoActor, List(sender))))
+    }
     case x => !!!(x, "receive")
   }
 
-  //  def binding: Receive(bindings:Map[()]) = {
-  //    case n: Nao => naoActor ! (sender,n)
-  //    case x => !!!(x,"receive")
-  //  }
+  def binding(bindings: Map[Nao, (ActorRef, List[ActorRef])]): Receive = {
+    case n: Nao => naoActor ! (sender, n)
+    case x => !!!(x, "receive")
+  }
 
   private def !!!(x: Any, state: String) = {
     val msg = "wrong message: " + x + " at " + state

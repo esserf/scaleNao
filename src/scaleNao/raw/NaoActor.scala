@@ -2,6 +2,7 @@ package scaleNao.raw
 
 import akka.actor.Actor
 import akka.actor.ActorRef
+import akka.zeromq.ConcurrentSocketActor
 
 private class NaoActor extends Actor {
   
@@ -54,7 +55,7 @@ private class NaoActor extends Actor {
   private def waitOnAnswer(nia: NaoInAction, userActor: ActorRef,c:Call): Receive = {
     case m: ZMQMessage => {
       userActor ! answer(ProtoDeserializer(m.frames),c)
-      unbecome
+      become(communicating(nia))
     }
     case Connecting =>
     case x => !!!(x, "waitOnAnswer")
@@ -82,3 +83,4 @@ private class NaoActor extends Actor {
   private def error(a: Any) = trace("error: " + a)
   private def wrongMessage(a: Any, state: String) = error("wrong messaage: " + a + " at " + state)
 }
+

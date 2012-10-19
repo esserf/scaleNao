@@ -23,8 +23,7 @@ class StupidUserActor extends Actor {
   def receive = {
     case Subscribed(nao) => {
       trace("naoActor received: " + (nao,sender))
-      sender ! Call('ALTextToSpeech,'getVolume)
-//      sender ! Call('ALTextToSpeech,'say,List("Hello World!"))
+      sender ! Call('ALTextToSpeech,'getVolume)     
       become(waitOnAnswer(nao,sender))
     }
     case x => error("Wrong message: " + x)
@@ -33,6 +32,7 @@ class StupidUserActor extends Actor {
   def waitOnAnswer(nao:Nao,naoActor: ActorRef): Receive = {
     case x:Answer => {
       trace("Answer:" + x)
+      sender ! Call('ALTextToSpeech,'say,List("Hello World!"))
     }
   }
 

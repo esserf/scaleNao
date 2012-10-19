@@ -13,6 +13,8 @@ object SimpleRequestTest extends App {
   trace("Socket binded with " + address)
   
   getVolume
+  say("abc")
+  say("xyz")
 
   def answer = {
     val protoResponse = HAWActorRPCResponse.parseFrom(socket.recv(0))
