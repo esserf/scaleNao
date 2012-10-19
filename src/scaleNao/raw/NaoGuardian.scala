@@ -42,7 +42,7 @@ class NaoGuardian extends Actor {
     error(msg)
     sender ! msg
   }
-  private def trace(a: Any) = println("NaoGuardian: " + a)
-  private def error(a: Any) = trace("error: " + a)
-  private def wrongMessage(a: Any, state: String) = error("wrong messaage: " + a + " at " + state)
+  private def trace(a: Any,force:Boolean = false) = if (Logging.NaoGuardian.info) println("NaoGuardian: " + a)
+  private def error(a: Any,force:Boolean = false) = if (Logging.NaoGuardian.error) trace("error: " + a,true)
+  private def wrongMessage(a: Any, state: String,force:Boolean = false) = if (Logging.NaoGuardian.wrongMessage) error("wrong messaage: " + a + " at " + state,true)
 }

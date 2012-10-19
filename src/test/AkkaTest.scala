@@ -7,10 +7,9 @@ import akka.actor.ActorRef
 
 /**
  * TODO Events
- * TODO mehrere Nachrichten
- * TODO Answers kommen nicht immer an
+ * TODO Calls kommen nicht immer an
  * TODO mehrere Sender
- * TODO ZeroMQ im NaoActor starten und für jeden Call einen NaoMessageActor
+ * TODO mehrere Naos
  * TODO erkennen, dass der Nao nicht erreichbar ist
  * TODO Shutdown
  * TODO Superviser auf Herz und Nieren prüfen
@@ -23,6 +22,6 @@ object AkkaTest extends App {
   scaleNao.System
   import scaleNao.System._ 
   import test._
-  val actor = system.actorOf(Props[StupidUserActor], name = "SimpleAkkaCommunicationTest")
+  val actor = system.actorOf(Props[AsynchronUserActor])
 }
 

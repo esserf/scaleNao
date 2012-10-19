@@ -2,10 +2,10 @@ package scaleNao.raw
 
 import akka.actor.Actor
 import akka.actor.ActorRef
-import akka.zeromq.ConcurrentSocketActor
+import akka.actor.Props
 
 private class NaoActor extends Actor {
-  
+
   import akka.zeromq.ZMQMessage
   import scaleNao.raw.z.MQ._
   import NaoAdapter.value._
@@ -20,11 +20,10 @@ private class NaoActor extends Actor {
     case (userActor: ActorRef, nao: Nao) =>
       {
         trace(nao + " comes in")
-        val nia = connect(nao)
-        if (nia.isAvailable) {
+        if (isConnectable(nao)) {
           trace("is available")
           userActor ! Subscribed(nao)
-          become(communicating(nia))
+          become(communicating(nao))
         } else {
           trace("is NOT available")
           userActor ! NotSubscribable(nao)
@@ -40,38 +39,18 @@ private class NaoActor extends Actor {
     trace("TODO watching:not implemented yet")
   }
 
-  import akka.zeromq.Connecting
   import scaleNao.qi._
-  private def communicating(nia: NaoInAction): Receive = {
-    case c:Call => {
+  private def communicating(n: Nao): Receive = {
+    case c: Call => {
       trace("request: " + c)
-      nia.socket ! request(c)
-      become(waitOnAnswer(nia, sender,c))
+      val messageActor = context.actorOf(Props[NaoMessageActor])
+      messageActor ! (n, sender, c)
     }
-    case Connecting =>
     case x => !!!(x, "communicating")
   }
 
-  private def waitOnAnswer(nia: NaoInAction, userActor: ActorRef,c:Call): Receive = {
-    case m: ZMQMessage => {
-      userActor ! answer(ProtoDeserializer(m.frames),c)
-      become(communicating(nia))
-    }
-    case Connecting =>
-    case x => !!!(x, "waitOnAnswer")
-  }
-
-  private def connect(nao: Nao) = {
-    import akka.zeromq._
-    import NaoAdapter.value.ProtoDeserializer
-    val address = "tcp://" + nao.host + ":" + nao.port
-    val zmq = ZeroMQExtension(system).newSocket(
-        SocketType.Req, 
-        Connect(address), 
-        Listener(self))
-//        ProtoDeserializer) // match error
-    trace("zmq Actor is started: " + zmq + " connected with " + address + "(SocketType:Req)")
-    Available(nao, zmq) // connecting check not implemented yet
+  private def isConnectable(nao: Nao) = {
+    true // connecting check not implemented yet
   }
 
   private def !!!(x: Any, state: String) = {
@@ -79,8 +58,8 @@ private class NaoActor extends Actor {
     error(msg)
     sender ! msg
   }
-  private def trace(a: Any) = println("NaoActor: " + a)
-  private def error(a: Any) = trace("error: " + a)
-  private def wrongMessage(a: Any, state: String) = error("wrong messaage: " + a + " at " + state)
+  private def trace(a: Any, force: Boolean = false) = if (Logging.NaoGuardian.info) println("NaoActor: " + a)
+  private def error(a: Any, force: Boolean = false) = if (Logging.NaoGuardian.error) trace("error: " + a, true)
+  private def wrongMessage(a: Any, state: String, force: Boolean = false) = if (Logging.NaoGuardian.wrongMessage) error("wrong messaage: " + a + " at " + state, true)
 }
 

@@ -5,7 +5,7 @@ import akka.actor.ActorSystem
 import akka.actor.Props
 import akka.actor.ActorRef
 
-class StupidUserActor extends Actor {
+class SynchronUserActor extends Actor {
   import scaleNao.raw._
   import scaleNao.raw.messages.Messages._
   import scaleNao.raw.messages._
@@ -32,11 +32,11 @@ class StupidUserActor extends Actor {
   def waitOnAnswer(nao:Nao,naoActor: ActorRef): Receive = {
     case x:Answer => {
       trace("Answer:" + x)
-      sender ! Call('ALTextToSpeech,'say,List("Hello World!"))
+      naoActor ! Call('ALTextToSpeech,'say,List("Synchron"))
     }
   }
 
-  def trace(a: Any) = println("StupidUserActor: " + a)
+  def trace(a: Any) = println("SynchronUserActorr: " + a)
   def error(a: Any) = trace("serror: " + a)
   def wrongMessage(a: Any) = error("wrong messaage: " + a)
 }
