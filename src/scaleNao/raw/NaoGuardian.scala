@@ -11,7 +11,6 @@ import scala.collection.immutable.HashMap
 
 class NaoGuardian extends Actor {
   val naoActor = context.actorOf(Props[NaoActor], name = "NaoActor")
-  trace("is started: " + self)
   import akka.actor.SupervisorStrategy._
   import context._
 
@@ -44,7 +43,8 @@ class NaoGuardian extends Actor {
   }
   private def trace(a: Any) = if (Logging.NaoGuardian.info) log.info(a.toString)
   private def error(a: Any) = if (Logging.NaoGuardian.error) log.warning(a.toString)
-  private def wrongMessage(a: Any, state: String) = if (Logging.NaoGuardian.wrongMessage) log.warning("wrong message: " + a)
+  private def wrongMessage(a: Any, state: String) = if (Logging.NaoGuardian.wrongMessage) log.warning("wrong message: " + a  + " in "+ state)
   import akka.event.Logging
   val log = Logging(context.system, this)
+  trace("is started: " + self)
 }

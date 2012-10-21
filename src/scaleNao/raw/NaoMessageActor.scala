@@ -11,23 +11,38 @@ class NaoMessageActor extends Actor {
   import scaleNao.raw.messages.Conversions
   import context._
   import NaoAdapter.value._
-  trace("is started: " + self)
 
   import akka.zeromq.Connecting
   def receive = {
     case (nao:Nao,userActor: ActorRef, c: Call) =>{
-      trace("request: " + c)
-      val nia = connect(nao)
-      nia.socket ! z.MQ.request(c)
-      become(waitOnAnswer(nia, userActor,c))
+      become(waitOnConnecting(connect(nao), userActor,c))
+      
+//      val nia = connect(nao)
+//      trace("request: " + c)
+//      nia.socket ! z.MQ.request(c)
+//      become(waitOnAnswer(nia, userActor,c))
     }
-    case Connecting => trace("Connecting on receive")       
+    case Connecting => {
+      trace("Connecting on receive")
+
+    }      
     case x => wrongMessage(x, "receive")
   }
 
+  private def waitOnConnecting(nia: NaoInAction, userActor: ActorRef,c:Call): Receive = {
+    case Connecting => {
+      trace("Connecting and request: " + c)
+      nia.socket ! z.MQ.request(c)
+      become(waitOnAnswer(nia, userActor,c))
+    }      
+    case x => wrongMessage(x, "waitOnConnect")    
+  }
+  
   private def waitOnAnswer(nia: NaoInAction, userActor: ActorRef,c:Call): Receive = {
     case m: ZMQMessage => {
       userActor ! z.MQ.answer(ProtoDeserializer(m.frames),c)
+      context.stop(nia.socket)
+      context.stop(self)
     }
     case Connecting => trace("Connecting on waitOnAnswer") 
     case x => wrongMessage(x, "waitOnAnswer")
@@ -43,17 +58,14 @@ class NaoMessageActor extends Actor {
         Listener(self))
 //        ProtoDeserializer) // match error
     trace("zmq Actor is started: " + zmq + " connected with " + address + "(SocketType:Req)")
+    context.watch(zmq)
     Available(nao, zmq) // connecting check not implemented yet
   }
 
-  private def !!!(x: Any, state: String) = {
-    val msg = "wrong message: " + x + " at " + state
-    error(msg)
-    sender ! msg
-  }
   private def trace(a: Any) = if (Logging.NaoMessageActor.info)  log.info(a.toString)
   private def error(a: Any) = if (Logging.NaoMessageActor.error) log.warning(a.toString)
-  private def wrongMessage(a: Any, state: String) = if (Logging.NaoMessageActor.wrongMessage) log.warning("wrong message: " + a)
+  private def wrongMessage(a: Any, state: String) = if (Logging.NaoMessageActor.wrongMessage) log.warning("wrong message: " + a  + " in "+ state + " from " + sender)
   import akka.event.Logging
   val log = Logging(context.system, this)
+  trace("is started: " + self)
 }

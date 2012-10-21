@@ -13,7 +13,7 @@ object Logging {
     val wrongMessage = true
   }
   object NaoMessageActor{
-    val info = false
+    val info = true
     val error = true
     val wrongMessage = true
   }

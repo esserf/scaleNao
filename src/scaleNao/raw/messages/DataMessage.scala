@@ -10,7 +10,9 @@ import NaoAdapter.value.Mixer
 
   case class Call(module: Module, method: Method, parameters: List[MixedValue] = Nil) extends DataMessage with OutMessage {
     override def toString = "Call(" + module.title + "." + method.title + "(" +  params + "))"
-      private def params = {
+    def actorName = "Call:" + module.title + "." + method.title + ":" +  params + ""
+
+    private def params = {
       if (parameters.isEmpty)
         ""
       else

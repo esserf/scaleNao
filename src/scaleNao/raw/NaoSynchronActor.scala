@@ -13,7 +13,6 @@ private class NaoSynchronActor extends Actor {
   import scaleNao.raw.messages.Conversions
   import context._
   import NaoAdapter.value._
-  trace("is started: " + self)
 
   def receive = {
     case (userActor: ActorRef, nao: Nao) =>
@@ -80,7 +79,8 @@ private class NaoSynchronActor extends Actor {
   }
   private def trace(a: Any) = if (Logging.NaoActor.info)  log.info(a.toString)
   private def error(a: Any) = if (Logging.NaoActor.error) log.warning(a.toString)
-  private def wrongMessage(a: Any, state: String) = if (Logging.NaoActor.wrongMessage) log.warning("wrong message: " + a)
+  private def wrongMessage(a: Any, state: String) = if (Logging.NaoActor.wrongMessage) log.warning("wrong message: " + a  + " in "+ state)
   import akka.event.Logging
   val log = Logging(context.system, this)
+  trace("is started: " + self)
 }

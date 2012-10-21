@@ -19,25 +19,32 @@ class AsynchronUserActor extends Actor{
     trace("SimpleAkkaCommunicationTest with " + nao)
     naoGuardian ! nao
   }
+  
+  val num = 6
 
   def receive = {
     case Subscribed(nao) => {
       trace("naoActor received: " + (nao, sender))
-      for(i <- 0 to 8)
+      for(i <- 0 to num)
     	  sender ! Call('ALTextToSpeech, 'say, List("Asynchron"+i))
-      trace("answer ->")
-      become(answer(System.currentTimeMillis))
+      become(answer(sender,System.currentTimeMillis))
     }
   }
-  def answer(t0:Long,n:Int=1): Receive = {
+  def answer(userActor:ActorRef,t0:Long,n:Int=1): Receive = {
     case x: Answer => {
-      trace("Answer:" + x + " (" + (System.currentTimeMillis-t0)/n+"ms)")
-      become(answer(t0,n+1))
+      trace("Answer("+n+"):" + x + " (" + (System.currentTimeMillis-t0)/n+"ms)")  
+      if (n % num == 0){
+       for(i <- 0 to num)
+    	  userActor ! Call('ALTextToSpeech, 'say, List("Asynchron"+n+i))    
+    	become(answer(userActor,t0,(n+1)))
+      }
+      else
+         become(answer(userActor,t0,n+1))
     }    
   }
   def trace(a: Any) = log.info(a.toString)
   def error(a: Any) = log.warning(a.toString)
-  def wrongMessage(a: Any) = error("wrong messaage: " + a)
+  def wrongMessage(a: Any) = error("wrong message: " + a)
   import akka.event.Logging
   val log = Logging(context.system, this)
 }

@@ -7,9 +7,7 @@ import akka.actor.Props
 private class NaoActor extends Actor {
 
   import scaleNao.raw.messages._
-  import context._
-  trace("is started: " + self)
-  
+  import context._  
 
   def receive = {
     case (userActor: ActorRef, nao: Nao) =>
@@ -35,16 +33,19 @@ private class NaoActor extends Actor {
   }
 
   private def communicating(n: Nao): Receive = {
-    case c: Call => {
-      trace("request: " + c)
-      val messageActor = context.actorOf(Props[NaoMessageActor])
+    case c: Call => {  
+      val messageActor = context.actorOf(Props[NaoMessageActor],c.actorName)
+      trace("request: " + c + " " + messageActor)
       messageActor ! (n, sender, c)
     }
     case x => !!!(x, "communicating")
   }
 
+  /**
+   * TODO isConnectable: is not implemented yet
+   */
   private def isConnectable(nao: Nao) = {
-    true // connecting check not implemented yet
+    true
   }
 
   private def !!!(x: Any, state: String) = {
@@ -54,8 +55,10 @@ private class NaoActor extends Actor {
   }
   private def trace(a: Any) = if (Logging.NaoActor.info) log.info(a.toString)
   private def error(a: Any) = if (Logging.NaoActor.error) log.warning(a.toString)
-  private def wrongMessage(a: Any, state: String) = if (Logging.NaoActor.wrongMessage) log.warning("wrong message: " + a)
+  private def wrongMessage(a: Any, state: String) = if (Logging.NaoActor.wrongMessage) log.warning("wrong message: " + a  + " in "+ state)
   import akka.event.Logging
   val log = Logging(context.system, this)
+  trace("is started: " + self)
+
 }
 

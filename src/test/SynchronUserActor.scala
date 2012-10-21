@@ -26,19 +26,21 @@ class SynchronUserActor extends Actor {
       sender ! Call('ALTextToSpeech, 'say, List("Synchron"+0))
       become(answer(sender,t0))
     }
+    case x => wrongMessage(x)
   }
-  def answer(sender:ActorRef,t0:Long,n:Int=1): Receive = {
+  def answer(naoActor:ActorRef,t0:Long,n:Int=1): Receive = {
     case x: Answer => {
 //      if (n % 10 == 0)
     	  trace( x + " (average " + (System.currentTimeMillis-t0)/n+"ms of " + n + " times)")
-      sender ! Call('ALTextToSpeech, 'say, List("Synchron"+n))
-      become(answer(sender,t0,n+1))
+      naoActor ! Call('ALTextToSpeech, 'say, List("Synchron"+n))
+      become(answer(naoActor,t0,n+1))
     }    
+    case x => wrongMessage(x)
   }
   
   def trace(a: Any) = log.info(a.toString)
   def error(a: Any) = log.warning(a.toString)
-  def wrongMessage(a: Any) = error("wrong messaage: " + a)
+  def wrongMessage(a: Any) = error("wrong message: " + a)
   import akka.event.Logging
   val log = Logging(context.system, this)
 }
