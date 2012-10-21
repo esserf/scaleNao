@@ -7,7 +7,7 @@ import akka.actor.ActorRef
 
 class SmallStupidUserActor extends Actor {
   import scaleNao.raw._
-  import scaleNao.raw.messages.Messages._
+  import scaleNao.raw.messages.Conversions._
   import scaleNao.raw.messages._
   import scaleNao.qi._
   import context._

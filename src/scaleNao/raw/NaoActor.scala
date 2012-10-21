@@ -6,15 +6,10 @@ import akka.actor.Props
 
 private class NaoActor extends Actor {
 
-  import akka.zeromq.ZMQMessage
-  import scaleNao.raw.z.MQ._
-  import NaoAdapter.value._
-  import NaoAdapter.value.Hawactormsg._
   import scaleNao.raw.messages._
-  import scaleNao.raw.messages.Messages._
   import context._
-  import NaoAdapter.value._
   trace("is started: " + self)
+  
 
   def receive = {
     case (userActor: ActorRef, nao: Nao) =>
@@ -39,7 +34,6 @@ private class NaoActor extends Actor {
     trace("TODO watching:not implemented yet")
   }
 
-  import scaleNao.qi._
   private def communicating(n: Nao): Receive = {
     case c: Call => {
       trace("request: " + c)
@@ -58,8 +52,10 @@ private class NaoActor extends Actor {
     error(msg)
     sender ! msg
   }
-  private def trace(a: Any, force: Boolean = false) = if (Logging.NaoGuardian.info) println("NaoActor: " + a)
-  private def error(a: Any, force: Boolean = false) = if (Logging.NaoGuardian.error) trace("error: " + a, true)
-  private def wrongMessage(a: Any, state: String, force: Boolean = false) = if (Logging.NaoGuardian.wrongMessage) error("wrong messaage: " + a + " at " + state, true)
+  private def trace(a: Any) = if (Logging.NaoActor.info) log.info(a.toString)
+  private def error(a: Any) = if (Logging.NaoActor.error) log.warning(a.toString)
+  private def wrongMessage(a: Any, state: String) = if (Logging.NaoActor.wrongMessage) log.warning("wrong message: " + a)
+  import akka.event.Logging
+  val log = Logging(context.system, this)
 }
 

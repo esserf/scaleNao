@@ -17,10 +17,10 @@ class NaoGuardian extends Actor {
 
   override val supervisorStrategy =
     OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = Duration(1, "minute")) {
-      case _: ArithmeticException ⇒ Resume
-      case _: NullPointerException ⇒ Restart
-      case _: IllegalArgumentException ⇒ Stop
-      case _: Exception ⇒ Escalate
+      case _: ArithmeticException => Resume
+      case _: NullPointerException => Restart
+      case _: IllegalArgumentException => Stop
+      case _: Exception => Escalate
     }
   context.watch(naoActor)
 
@@ -42,7 +42,9 @@ class NaoGuardian extends Actor {
     error(msg)
     sender ! msg
   }
-  private def trace(a: Any,force:Boolean = false) = if (Logging.NaoGuardian.info) println("NaoGuardian: " + a)
-  private def error(a: Any,force:Boolean = false) = if (Logging.NaoGuardian.error) trace("error: " + a,true)
-  private def wrongMessage(a: Any, state: String,force:Boolean = false) = if (Logging.NaoGuardian.wrongMessage) error("wrong messaage: " + a + " at " + state,true)
+  private def trace(a: Any) = if (Logging.NaoGuardian.info) log.info(a.toString)
+  private def error(a: Any) = if (Logging.NaoGuardian.error) log.warning(a.toString)
+  private def wrongMessage(a: Any, state: String) = if (Logging.NaoGuardian.wrongMessage) log.warning("wrong message: " + a)
+  import akka.event.Logging
+  val log = Logging(context.system, this)
 }

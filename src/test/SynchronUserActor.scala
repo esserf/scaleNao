@@ -6,8 +6,7 @@ import akka.actor.Props
 import akka.actor.ActorRef
 
 class SynchronUserActor extends Actor {
-  import scaleNao.raw._
-  import scaleNao.raw.messages.Messages._
+  import scaleNao.raw.messages.Conversions._
   import scaleNao.raw.messages._
   import scaleNao.qi._
   import context._
@@ -22,21 +21,24 @@ class SynchronUserActor extends Actor {
   
   def receive = {
     case Subscribed(nao) => {
-      trace("naoActor received: " + (nao,sender))
-      sender ! Call('ALTextToSpeech,'getVolume)     
-      become(waitOnAnswer(nao,sender))
+      trace("naoActor received: " + (nao, sender))
+      val t0 = System.currentTimeMillis
+      sender ! Call('ALTextToSpeech, 'say, List("Synchron"+0))
+      become(answer(sender,t0))
     }
-    case x => error("Wrong message: " + x)
+  }
+  def answer(sender:ActorRef,t0:Long,n:Int=1): Receive = {
+    case x: Answer => {
+//      if (n % 10 == 0)
+    	  trace( x + " (average " + (System.currentTimeMillis-t0)/n+"ms of " + n + " times)")
+      sender ! Call('ALTextToSpeech, 'say, List("Synchron"+n))
+      become(answer(sender,t0,n+1))
+    }    
   }
   
-  def waitOnAnswer(nao:Nao,naoActor: ActorRef): Receive = {
-    case x:Answer => {
-      trace("Answer:" + x)
-      naoActor ! Call('ALTextToSpeech,'say,List("Synchron"))
-    }
-  }
-
-  def trace(a: Any) = println("SynchronUserActorr: " + a)
-  def error(a: Any) = trace("serror: " + a)
+  def trace(a: Any) = log.info(a.toString)
+  def error(a: Any) = log.warning(a.toString)
   def wrongMessage(a: Any) = error("wrong messaage: " + a)
+  import akka.event.Logging
+  val log = Logging(context.system, this)
 }

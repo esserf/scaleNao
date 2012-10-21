@@ -3,10 +3,8 @@ package scaleNao.raw.z
 import org.zeromq.ZContext
 import akka.zeromq.ZMQMessage
 import org.zeromq.ZMQ.REQ
-import scaleNao.raw.messages.Messages.Answer
 import NaoAdapter.value.Hawactormsg.HAWActorRPCResponse
-import scaleNao.raw.messages.Messages.Call
-import scaleNao.raw.messages.InvalidAnswer
+import scaleNao.raw.messages._
 import NaoAdapter.value.Mixer
 
 object MQ {

@@ -3,7 +3,6 @@ package scaleNao.raw.messages
 import NaoAdapter.value.Hawactormsg.MixedValue
 import NaoAdapter.value.Mixer
 
-object Messages {
 
   trait DataMessage
   trait InMessage
@@ -32,6 +31,8 @@ object Messages {
 
   case class Method(title: String)
   case object Method
+ 
+object Conversions {
 
   implicit def string2Mixed(s: String) = MixedValue.newBuilder().setString(s).build()
   implicit def int2Mixed(i: Int) = MixedValue.newBuilder().setInt(i).build()

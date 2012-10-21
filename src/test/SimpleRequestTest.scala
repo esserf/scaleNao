@@ -12,9 +12,19 @@ object SimpleRequestTest extends App {
   val socket = scaleNao.raw.z.MQ.socket(url = address)
   trace("Socket binded with " + address)
   
-  getVolume
-  say("abc")
-  say("xyz")
+  val tracing = false
+  littleTimeTest
+  
+  def littleTimeTest = {
+    val t0 = System.currentTimeMillis()
+    val n = 12
+    for (i <- 0 to n)
+      say("Synchron" + i)
+    val tEnd = System.currentTimeMillis() - t0
+    trace(tEnd)
+    println("SimpleRequestTest: average " + tEnd / n + "ms of " + n + "times")
+  }
+  
 
   def answer = {
     val protoResponse = HAWActorRPCResponse.parseFrom(socket.recv(0))
@@ -63,5 +73,5 @@ object SimpleRequestTest extends App {
   def closeHandR = request("ALMotion", "closeHand", List("RHand"))
   def openHandR = request("ALMotion", "openHand", List("RHand"))
 
-  def trace(a: Any) = println("SimpleRequestTest: " + a)
+  def trace(a: Any) = if (tracing) println("SimpleRequestTest: " + a)
 }

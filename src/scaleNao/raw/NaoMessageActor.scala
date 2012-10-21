@@ -3,16 +3,12 @@ package scaleNao.raw
 import akka.actor.Actor
 import akka.actor.ActorRef
 import akka.zeromq.Connecting
-import akka.dispatch.Terminate
 
 class NaoMessageActor extends Actor {
 
   import akka.zeromq.ZMQMessage
-  import scaleNao.raw.z.MQ._
-  import NaoAdapter.value._
-  import NaoAdapter.value.Hawactormsg._
   import scaleNao.raw.messages._
-  import scaleNao.raw.messages.Messages._
+  import scaleNao.raw.messages.Conversions
   import context._
   import NaoAdapter.value._
   trace("is started: " + self)
@@ -22,7 +18,7 @@ class NaoMessageActor extends Actor {
     case (nao:Nao,userActor: ActorRef, c: Call) =>{
       trace("request: " + c)
       val nia = connect(nao)
-      nia.socket ! request(c)
+      nia.socket ! z.MQ.request(c)
       become(waitOnAnswer(nia, userActor,c))
     }
     case Connecting => trace("Connecting on receive")       
@@ -31,8 +27,7 @@ class NaoMessageActor extends Actor {
 
   private def waitOnAnswer(nia: NaoInAction, userActor: ActorRef,c:Call): Receive = {
     case m: ZMQMessage => {
-      userActor ! answer(ProtoDeserializer(m.frames),c)
-//      self ! Terminate
+      userActor ! z.MQ.answer(ProtoDeserializer(m.frames),c)
     }
     case Connecting => trace("Connecting on waitOnAnswer") 
     case x => wrongMessage(x, "waitOnAnswer")
@@ -56,7 +51,9 @@ class NaoMessageActor extends Actor {
     error(msg)
     sender ! msg
   }
-  private def trace(a: Any,force:Boolean = false) = if (Logging.NaoGuardian.info) println("NaoMessageActor: " + a)
-  private def error(a: Any,force:Boolean = false) = if (Logging.NaoGuardian.error) trace("error: " + a,true)
-  private def wrongMessage(a: Any, state: String,force:Boolean = false) = if (Logging.NaoGuardian.wrongMessage) error("wrong messaage: " + a + " at " + state,true)
+  private def trace(a: Any) = if (Logging.NaoMessageActor.info)  log.info(a.toString)
+  private def error(a: Any) = if (Logging.NaoMessageActor.error) log.warning(a.toString)
+  private def wrongMessage(a: Any, state: String) = if (Logging.NaoMessageActor.wrongMessage) log.warning("wrong message: " + a)
+  import akka.event.Logging
+  val log = Logging(context.system, this)
 }
