@@ -22,7 +22,7 @@ private class NaoActor extends Actor {
           userActor ! NotSubscribable(nao)
         }
       }
-    case x => !!!(x, "receive")
+    case x => wrongMessage(x, "receive")
   }
 
   /**
@@ -33,12 +33,15 @@ private class NaoActor extends Actor {
   }
 
   private def communicating(n: Nao): Receive = {
+    case userActor: ActorRef => {
+      userActor ! Subscribed(n)
+    }
     case c: Call => {  
-      val messageActor = context.actorOf(Props[NaoMessageActor],c.actorName)
+      val messageActor = context.actorOf(Props[NaoMessageActor])
       trace("request: " + c + " " + messageActor)
       messageActor ! (n, sender, c)
     }
-    case x => !!!(x, "communicating")
+    case x => wrongMessage(x, "communicating")
   }
 
   /**
@@ -48,11 +51,6 @@ private class NaoActor extends Actor {
     true
   }
 
-  private def !!!(x: Any, state: String) = {
-    val msg = "wrong message: " + x + " at " + state
-    error(msg)
-    sender ! msg
-  }
   private def trace(a: Any) = if (Logging.NaoActor.info) log.info(a.toString)
   private def error(a: Any) = if (Logging.NaoActor.error) log.warning(a.toString)
   private def wrongMessage(a: Any, state: String) = if (Logging.NaoActor.wrongMessage) log.warning("wrong message: " + a  + " in "+ state)

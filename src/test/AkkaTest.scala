@@ -22,7 +22,8 @@ object AkkaTest extends App {
   scaleNao.System
   import scaleNao.System._ 
   import test._
-  val actor = system.actorOf(Props[AsynchronUserActor],"UserActor")
+  val actor = system.actorOf(Props[SynchronUserActor],"UserActor")
+  val actor2 = system.actorOf(Props[SynchronUserActor],"UserActor2")
 }
 
 /**

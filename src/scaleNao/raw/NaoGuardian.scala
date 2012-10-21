@@ -26,21 +26,22 @@ class NaoGuardian extends Actor {
   def receive = {
     case n: Nao => {
       naoActor ! (sender, n)
-      binding(new HashMap() + (n -> (naoActor, List(sender))))
+      become(binding(new HashMap() + (n -> (naoActor, List(sender)))))
     }
-    case x => !!!(x, "receive")
+    case x => wrongMessage(x, "receive")
   }
 
   def binding(bindings: Map[Nao, (ActorRef, List[ActorRef])]): Receive = {
-    case n: Nao => naoActor ! (sender, n)
-    case x => !!!(x, "receive")
+    case n: Nao =>{
+      val bind = bindings.get(n)
+      if (bind.isDefined && !bind.get._2.contains(sender)){
+        naoActor ! sender
+      }
+//      naoActor ! (sender, n)
+    } 
+    case x => wrongMessage(x, "receive")
   }
 
-  private def !!!(x: Any, state: String) = {
-    val msg = "wrong message: " + x + " at " + state
-    error(msg)
-    sender ! msg
-  }
   private def trace(a: Any) = if (Logging.NaoGuardian.info) log.info(a.toString)
   private def error(a: Any) = if (Logging.NaoGuardian.error) log.warning(a.toString)
   private def wrongMessage(a: Any, state: String) = if (Logging.NaoGuardian.wrongMessage) log.warning("wrong message: " + a  + " in "+ state)

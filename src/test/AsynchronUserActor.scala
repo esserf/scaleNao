@@ -20,7 +20,7 @@ class AsynchronUserActor extends Actor{
     naoGuardian ! nao
   }
   
-  val num = 6
+  val num = 3
 
   def receive = {
     case Subscribed(nao) => {

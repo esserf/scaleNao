@@ -16,15 +16,9 @@ class NaoMessageActor extends Actor {
   def receive = {
     case (nao:Nao,userActor: ActorRef, c: Call) =>{
       become(waitOnConnecting(connect(nao), userActor,c))
-      
-//      val nia = connect(nao)
-//      trace("request: " + c)
-//      nia.socket ! z.MQ.request(c)
-//      become(waitOnAnswer(nia, userActor,c))
     }
     case Connecting => {
       trace("Connecting on receive")
-
     }      
     case x => wrongMessage(x, "receive")
   }
