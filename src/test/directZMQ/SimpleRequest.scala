@@ -6,7 +6,19 @@ class SimpleRequest(address: String = "tcp://127.0.0.1:5555", tracing: Boolean =
   import NaoAdapter.value.Mixer
   import NaoAdapter.value.Hawactormsg.HAWActorRPCResponse
   import NaoAdapter._
-  val socket = scaleNao.raw.z.MQ.socket(url = address)
+  val socket = zMQ.socket(url = address)
+
+  object zMQ {
+    import org.zeromq.ZContext
+    def context = new ZContext
+    def socket(cont: ZContext = context, url: String) = {
+      import org.zeromq.ZMQ._
+      val socket = cont.createSocket(REQ)
+      socket.connect(url)
+      socket
+    }
+  }
+
   trace("Socket binded with " + address)
 
   def answer = {

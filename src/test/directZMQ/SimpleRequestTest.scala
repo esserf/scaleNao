@@ -7,7 +7,7 @@ object SimpleRequestTest extends App {
   val nila = "tcp://192.168.1.148:5555"
   val local = "tcp://127.0.0.1:5555"
     
-  new SimpleRequest(nila).say("Hallo")
+  new SimpleRequest().say("Hallo")
 }
 
   
