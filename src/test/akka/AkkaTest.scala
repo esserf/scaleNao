@@ -15,8 +15,10 @@ object AkkaTest extends App {
   scaleNao.System
   import scaleNao.System._ 
   import test._
-  for (i <- 0 to 5)
-  	system.actorOf(Props[AsynchronUserActor],"UserActor"+i)
+//  for (i <- 0 to 1)
+  	system.actorOf(Props[AsynchronUserActorNila],"UserActorNila")
+//    for (i <- 0 to 1)
+  	system.actorOf(Props[AsynchronUserActorHanna],"UserActorHanna")
 }
 
 /**

@@ -6,9 +6,9 @@ case object OutMessageNotAllowed extends ErrorMessage
 case object InMessageNotAllowed extends ErrorMessage
 case object NeedNao extends ErrorMessage
 
-case class InvalidAnswer(c:Call) extends ErrorMessage
+case class InvalidAnswer(c:Call) extends InMessage with ErrorMessage
 
-case class CallTimedOut(c:Call) extends ErrorMessage
+case class CallTimedOut(c:Call) extends InMessage with ErrorMessage
 case object CallTimedOut
 
 case class NotSubscribable(nao:Nao) extends InfoMessage

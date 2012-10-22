@@ -10,6 +10,9 @@ case object CallReceived
 case class Subscribed(nao:Nao) extends InfoMessage
 case object NaoReceived
 
+case class AlreadySubscribed(nao:Nao) extends InfoMessage
+case object AlreadySubscribed
+
 case class NaoRebound(nao:Nao) extends InfoMessage
 case object NaoRebound
 

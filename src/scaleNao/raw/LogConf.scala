@@ -8,7 +8,7 @@ object LogConf {
     val wrongMessage = true
   }
   object NaoGuardian{
-    val info = false
+    val info = true
     val error = true
     val wrongMessage = true
   }

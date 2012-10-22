@@ -10,7 +10,7 @@ import akka.actor.ActorRef
 import scala.collection.immutable.HashMap
 
 class NaoGuardian extends Actor {
-  val naoActor = context.actorOf(Props[NaoActor], name = "NaoActor")
+  //  val naoActor = 
   import akka.actor.SupervisorStrategy._
   import context._
 
@@ -21,10 +21,11 @@ class NaoGuardian extends Actor {
       case _: IllegalArgumentException => Stop
       case _: Exception => Escalate
     }
-  context.watch(naoActor)
 
   def receive = {
     case n: Nao => {
+      val naoActor = context.actorOf(Props[NaoActor])
+      context.watch(naoActor)
       naoActor ! (sender, n)
       become(binding(new HashMap() + (n -> (naoActor, List(sender)))))
     }
@@ -32,19 +33,33 @@ class NaoGuardian extends Actor {
   }
 
   def binding(bindings: Map[Nao, (ActorRef, List[ActorRef])]): Receive = {
-    case n: Nao =>{
+    case n: Nao => {
+      trace("bindings: " + bindings)
       val bind = bindings.get(n)
-      if (bind.isDefined && !bind.get._2.contains(sender)){
-        naoActor ! sender
+      if (bind.isDefined) {
+        trace("nao is defined")
+        if (!bind.get._2.contains(sender)) {
+          bind.get._1 ! sender
+          become(binding(bindings + (n -> (bind.get._1, sender :: bind.get._2))))
+        } else
+          sender ! AlreadySubscribed(n)
+      } else {
+        trace("new nao")
+        val naoActor = context.actorOf(Props[NaoActor])
+        naoActor ! (sender,n)
+        trace(n, (naoActor, List(sender)))
+        trace(bindings + (n -> (naoActor, List(sender))))
+        become(binding(bindings + (n -> (naoActor, List(sender)))))
       }
-//      naoActor ! (sender, n)
-    } 
+
+      //      naoActor ! (sender, n)
+    }
     case x => wrongMessage(x, "receive")
   }
 
   private def trace(a: Any) = if (LogConf.NaoGuardian.info) log.info(a.toString)
   private def error(a: Any) = if (LogConf.NaoGuardian.error) log.warning(a.toString)
-  private def wrongMessage(a: Any, state: String) = if (LogConf.NaoGuardian.wrongMessage) log.warning("wrong message: " + a  + " in "+ state)
+  private def wrongMessage(a: Any, state: String) = if (LogConf.NaoGuardian.wrongMessage) log.warning("wrong message: " + a + " in " + state)
   import akka.event.Logging
   val log = Logging(context.system, this)
   trace("is started: " + self)

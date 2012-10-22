@@ -6,11 +6,11 @@ import scaleNao.raw.messages.Subscribed
 import akka.actor.Actor
 import akka.actor.ActorRef
 
-class AsynchronUserActor extends Actor {
+class AsynchronUserActorHanna extends Actor {
   import context._
 
   val naoGuardian = scaleNao.System.naoGuardian
-  val nao = Nao("Hanna", "127.0.0.1", 5555)
+  val nao = Nao("Hanna", "192.168.1.121", 5555)
 
   override def preStart {
     trace("SimpleAkkaCommunicationTest with " + nao)
@@ -22,8 +22,7 @@ class AsynchronUserActor extends Actor {
   def receive = {
     case Subscribed(nao) => {
       trace("naoActor received: " + (nao, sender))
-      for (i <- 0 to num)
-        sender ! Call('ALTextToSpeech, 'say, List(("Asynchron" + i) * 100))
+      sender ! Call('ALTextToSpeech, 'say, List("Ich bin Hanna"))
       become(answer(sender, System.currentTimeMillis))
     }
     case x => wrongMessage(x)
@@ -31,12 +30,12 @@ class AsynchronUserActor extends Actor {
   def answer(userActor: ActorRef, t0: Long, n: Int = 1): Receive = {
     case x: Answer => {
       trace("Answer(" + n + "):" + " (" + (System.currentTimeMillis - t0) / n + "ms)")
-      if (n % num == 0) {
-        for (i <- 0 to num)
-          userActor ! Call('ALTextToSpeech, 'say, List(("Asynchron" + i) * 100))
-        become(answer(userActor, t0, (n + 1)))
-      } else
-        become(answer(userActor, t0, n + 1))
+//      if (n % num == 0) {
+//        for (i <- 0 to num)
+//          userActor ! Call('ALTextToSpeech, 'say, List(("Asynchron" + i) * 100))
+//        become(answer(userActor, t0, (n + 1)))
+//      } else
+//        become(answer(userActor, t0, n + 1))
     }
     case x => wrongMessage(x)
   }

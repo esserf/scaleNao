@@ -11,7 +11,6 @@ import akka.zeromq.Listener
 import akka.zeromq.SocketType
 import akka.zeromq.ZMQMessage
 import akka.zeromq.ZeroMQExtension
-import scaleNao.raw.Logging
 import scaleNao.raw.messages.Available
 import scaleNao.raw.messages.Call
 import scaleNao.raw.messages.Nao
@@ -88,7 +87,7 @@ private class NaoSynchronActor extends Actor {
     Available(nao, zmq) // connecting check not implemented yet
   }
 
-  import scaleNao.raw.Logging
+  import scaleNao.raw.LogConf
   private def trace(a: Any) = print("") //if (Logging.NaoActor.info) log.info(a.toString)
   private def error(a: Any) = print("") //if (Logging.NaoActor.error) log.warning(a.toString)
   private def wrongMessage(a: Any, state: String) = print("") //if (Logging.NaoActor.wrongMessage) log.warning("wrong message: " + a + " in " + state)
