@@ -3,6 +3,7 @@ package scaleNao.raw
 import akka.actor.Actor
 import akka.actor.ActorRef
 import akka.zeromq.Connecting
+import org.zeromq.ZMQ.Socket
 
 class NaoMessageActor extends Actor {
 
@@ -13,33 +14,30 @@ class NaoMessageActor extends Actor {
   import NaoAdapter.value._
 
   import akka.zeromq.Connecting
-  def receive = {
-    case (nao:Nao,userActor: ActorRef, c: Call) =>{
-      become(waitOnConnecting(connect(nao), userActor,c))
+  
+  object zMQ {
+    import org.zeromq.ZContext
+    def context = new ZContext
+    def socket(cont: ZContext = context, url: String) = {
+      import org.zeromq.ZMQ._
+      val socket = cont.createSocket(REQ)
+      socket.connect(url)
+      socket
     }
-    case Connecting => {
-      trace("Connecting on receive")
-    }      
-    case x => wrongMessage(x, "receive")
-  }
-
-  private def waitOnConnecting(nia: NaoInAction, userActor: ActorRef,c:Call): Receive = {
-    case Connecting => {
-      trace("Connecting and request: " + c)
-      nia.socket ! z.MQ.request(c)
-      become(waitOnAnswer(nia, userActor,c))
-    }      
-    case x => wrongMessage(x, "waitOnConnect")    
   }
   
-  private def waitOnAnswer(nia: NaoInAction, userActor: ActorRef,c:Call): Receive = {
-    case m: ZMQMessage => {
-      userActor ! z.MQ.answer(ProtoDeserializer(m.frames),c)
-      context.stop(nia.socket)
+  def receive = {
+    case (nao:Nao,userActor: ActorRef, c: Call) =>{
+      trace("Call " + c)
+      val address = "tcp://" + nao.host + ":" + nao.port
+      val socket = zMQ.socket(url = address)
+      socket.send(ProtoSerializer(z.MQ.request(c)),0)
+      
+      userActor ! z.MQ.answer(ProtoDeserializer(socket.recv(0)), c)  
+      socket.close()
       context.stop(self)
-    }
-    case Connecting => trace("Connecting on waitOnAnswer") 
-    case x => wrongMessage(x, "waitOnAnswer")
+    }     
+    case x => wrongMessage(x, "receive")
   }
 
   private def connect(nao: Nao) = {
@@ -56,9 +54,9 @@ class NaoMessageActor extends Actor {
     Available(nao, zmq) // connecting check not implemented yet
   }
 
-  private def trace(a: Any) = if (Logging.NaoMessageActor.info)  log.info(a.toString)
-  private def error(a: Any) = if (Logging.NaoMessageActor.error) log.warning(a.toString)
-  private def wrongMessage(a: Any, state: String) = if (Logging.NaoMessageActor.wrongMessage) log.warning("wrong message: " + a  + " in "+ state + " from " + sender)
+  private def trace(a: Any) = if (LogConf.NaoMessageActor.info)  log.info(a.toString)
+  private def error(a: Any) = if (LogConf.NaoMessageActor.error) log.warning(a.toString)
+  private def wrongMessage(a: Any, state: String) = if (LogConf.NaoMessageActor.wrongMessage) log.warning("wrong message: " + a  + " in "+ state + " from " + sender)
   import akka.event.Logging
   val log = Logging(context.system, this)
   trace("is started: " + self)

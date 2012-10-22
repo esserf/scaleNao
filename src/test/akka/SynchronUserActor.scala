@@ -31,6 +31,7 @@ class SynchronUserActor extends Actor {
 //      if (n % 10 == 0)
     	  trace( x + " (average " + (System.currentTimeMillis-t0)/n+"ms of " + n + " times)")
       naoActor ! Call('ALTextToSpeech, 'say, List("Synchron"+n))
+//      naoActor ! Call('ALTextToSpeech, 'getVolume)
       become(answer(naoActor,t0,n+1))
     }    
     case x => wrongMessage(x)

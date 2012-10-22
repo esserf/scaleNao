@@ -1,9 +1,9 @@
 package scaleNao.raw
 
-object Logging {
+object LogConf {
   
   object NaoActor{
-    val info = false
+    val info = true
     val error = true
     val wrongMessage = true
   }

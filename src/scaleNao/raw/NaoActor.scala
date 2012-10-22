@@ -51,9 +51,9 @@ private class NaoActor extends Actor {
     true
   }
 
-  private def trace(a: Any) = if (Logging.NaoActor.info) log.info(a.toString)
-  private def error(a: Any) = if (Logging.NaoActor.error) log.warning(a.toString)
-  private def wrongMessage(a: Any, state: String) = if (Logging.NaoActor.wrongMessage) log.warning("wrong message: " + a  + " in "+ state)
+  private def trace(a: Any) = if (LogConf.NaoActor.info) log.info(a.toString)
+  private def error(a: Any) = if (LogConf.NaoActor.error) log.warning(a.toString)
+  private def wrongMessage(a: Any, state: String) = if (LogConf.NaoActor.wrongMessage) log.warning("wrong message: " + a  + " in "+ state)
   import akka.event.Logging
   val log = Logging(context.system, this)
   trace("is started: " + self)
