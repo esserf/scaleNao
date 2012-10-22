@@ -1,13 +1,10 @@
-package test
-
-import akka.actor.Actor
-import akka.actor.ActorSystem
-import akka.actor.Props
-import akka.actor.ActorRef
+package test.akka
 import scaleNao.raw._
 import scaleNao.raw.messages.Conversions._
 import scaleNao.raw.messages._
 import scaleNao.raw.messages.Subscribed
+import akka.actor.Actor
+import akka.actor.ActorRef
 
 class AsynchronUserActor extends Actor{
   import context._
@@ -20,22 +17,22 @@ class AsynchronUserActor extends Actor{
     naoGuardian ! nao
   }
   
-  val num = 3
+  val num = 2
 
   def receive = {
     case Subscribed(nao) => {
       trace("naoActor received: " + (nao, sender))
       for(i <- 0 to num)
-    	  sender ! Call('ALTextToSpeech, 'say, List("Asynchron"+i))
+    	  sender ! Call('ALTextToSpeec, 'say, List(("Asynchron"+i)*100))
       become(answer(sender,System.currentTimeMillis))
     }
   }
   def answer(userActor:ActorRef,t0:Long,n:Int=1): Receive = {
     case x: Answer => {
-      trace("Answer("+n+"):" + x + " (" + (System.currentTimeMillis-t0)/n+"ms)")  
+      trace("Answer("+n+"):" + " (" + (System.currentTimeMillis-t0)/n+"ms)")  
       if (n % num == 0){
        for(i <- 0 to num)
-    	  userActor ! Call('ALTextToSpeech, 'say, List("Asynchron"+n+i))    
+    	  userActor ! Call('ALTextToSpeec, 'say, List(("Asynchron"+i)*100))   
     	become(answer(userActor,t0,(n+1)))
       }
       else

@@ -1,30 +1,13 @@
-package test
+package test.directZMQ
 
-import NaoAdapter.value.Hawactormsg.HAWActorRPCRequest
-import NaoAdapter.value.Hawactormsg.MixedValue
-import NaoAdapter.value.Mixer
-import NaoAdapter.value.Hawactormsg.HAWActorRPCResponse
-import NaoAdapter._
-
-object SimpleRequestTest extends App {
-  
-  val address = "tcp://127.0.0.1:5555"
+class SimpleRequest(address: String = "tcp://127.0.0.1:5555", tracing: Boolean = true) {
+  import NaoAdapter.value.Hawactormsg.HAWActorRPCRequest
+  import NaoAdapter.value.Hawactormsg.MixedValue
+  import NaoAdapter.value.Mixer
+  import NaoAdapter.value.Hawactormsg.HAWActorRPCResponse
+  import NaoAdapter._
   val socket = scaleNao.raw.z.MQ.socket(url = address)
   trace("Socket binded with " + address)
-  
-  val tracing = false
-  littleTimeTest
-  
-  def littleTimeTest = {
-    val t0 = System.currentTimeMillis()
-    val n = 12
-    for (i <- 0 to n)
-      say("Synchron" + i)
-    val tEnd = System.currentTimeMillis() - t0
-    trace(tEnd)
-    println("SimpleRequestTest: average " + tEnd / n + "ms of " + n + "times")
-  }
-  
 
   def answer = {
     val protoResponse = HAWActorRPCResponse.parseFrom(socket.recv(0))
@@ -36,7 +19,7 @@ object SimpleRequestTest extends App {
       trace("-> Empty \n");
     }
   }
-  
+
   def toString(params: List[MixedValue]): String = {
     if (params.isEmpty)
       ""
@@ -45,29 +28,29 @@ object SimpleRequestTest extends App {
   }
 
   def request(module: String, method: String, params: List[MixedValue] = Nil) {
-    trace("request: " +  module + "." + method + "" + toString(params))
+    trace("request: " + module + "." + method + "" + toString(params))
 
     val param = HAWActorRPCRequest.newBuilder().setModule(module).setMethod(method);
     for (mixed <- params) {
       param.addParams(mixed)
     }
-    
+
     val rpcReq = param.build
     socket.send(rpcReq.toByteArray, 0)
     answer
   }
 
   implicit def string2Mixed(s: String) = MixedValue.newBuilder().setString(s).build()
-  
+
   def sequence = {
     openHandL
     openHandR
     closeHandR
     closeHandL
   }
-  
-  def getVolume = request("ALTextToSpeech", "getVolume") 
-  def say(s:String) = request("ALTextToSpeech", "say", List(s))
+
+  def getVolume = request("ALTextToSpeech", "getVolume")
+  def say(s: String) = request("ALTextToSpeech", "say", List(s))
   def closeHandL = request("ALMotion", "closeHand", List("LHand"))
   def openHandL = request("ALMotion", "openHand", List("LHand"))
   def closeHandR = request("ALMotion", "closeHand", List("RHand"))

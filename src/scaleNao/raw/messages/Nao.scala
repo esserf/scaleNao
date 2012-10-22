@@ -8,6 +8,7 @@ import akka.actor._
   trait NaoInAction {
     def isAvailable: Boolean
     def socket: ActorRef
+    def nao:Nao
   }
   case class Available(nao: Nao,socket: ActorRef) extends NaoInAction {
     def isAvailable = true

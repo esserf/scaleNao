@@ -1,8 +1,6 @@
-package test
+package test.akka
 
 import akka.actor.Actor
-import akka.actor.ActorSystem
-import akka.actor.Props
 import akka.actor.ActorRef
 
 class SynchronUserActor extends Actor {

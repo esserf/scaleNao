@@ -1,9 +1,6 @@
-package test
+package test.akka
 
 import akka.actor.Actor
-import akka.actor.ActorSystem
-import akka.actor.Props
-import akka.actor.ActorRef
 
 class SmallStupidUserActor extends Actor {
   import scaleNao.raw._
