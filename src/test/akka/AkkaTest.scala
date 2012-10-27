@@ -5,20 +5,25 @@ import akka.actor.Props
 
 /**
  * TODO Events
- * TODO mehrere Naoimport test.akka.AsynchronUserActor
-s
  * TODO erkennen, dass der Nao nicht erreichbar ist
  * TODO Shutdown
  * TODO Superviser auf Herz und Nieren prüfen
  */
 object AkkaTest extends App {
   scaleNao.System
-  import scaleNao.System._ 
+  import scaleNao.System._
   import test._
-//  for (i <- 0 to 1)
-  	system.actorOf(Props[AsynchronUserActorNila],"UserActorNila")
-//    for (i <- 0 to 1)
-  	system.actorOf(Props[AsynchronUserActorHanna],"UserActorHanna")
+
+  speedTest
+  def speedTest {
+    for (i <- 0 to 8)
+      system.actorOf(Props[AsynchronUserActor], "UserActor"+i)
+  }
+
+  def realTest {
+    system.actorOf(Props[AsynchronUserActorNila], "UserActorNila")
+    system.actorOf(Props[AsynchronUserActorHanna], "UserActorHanna")
+  }
 }
 
 /**

@@ -14,7 +14,7 @@ class AsynchronUserActorNila extends Actor {
 
   override def preStart {
     trace("SimpleAkkaCommunicationTest with " + nao)
-    naoGuardian ! nao
+    naoGuardian ! Subscribe(nao)
   }
 
   val num = 1

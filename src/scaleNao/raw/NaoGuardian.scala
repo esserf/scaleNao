@@ -23,33 +23,33 @@ class NaoGuardian extends Actor {
     }
 
   def receive = {
-    case n: Nao => {
+    case s: Subscribe => {
       val naoActor = context.actorOf(Props[NaoActor])
       context.watch(naoActor)
-      naoActor ! (sender, n)
-      become(binding(new HashMap() + (n -> (naoActor, List(sender)))))
+      naoActor ! (sender, s)
+      become(binding(new HashMap() + (s.nao -> (naoActor, List(sender)))))
     }
     case x => wrongMessage(x, "receive")
   }
 
   def binding(bindings: Map[Nao, (ActorRef, List[ActorRef])]): Receive = {
-    case n: Nao => {
+    case s: Subscribe => {
       trace("bindings: " + bindings)
-      val bind = bindings.get(n)
+      val bind = bindings.get(s.nao)
       if (bind.isDefined) {
         trace("nao is defined")
         if (!bind.get._2.contains(sender)) {
           bind.get._1 ! sender
-          become(binding(bindings + (n -> (bind.get._1, sender :: bind.get._2))))
+          become(binding(bindings + (s.nao -> (bind.get._1, sender :: bind.get._2))))
         } else
-          sender ! AlreadySubscribed(n)
+          sender ! AlreadySubscribed(s.nao)
       } else {
         trace("new nao")
         val naoActor = context.actorOf(Props[NaoActor])
-        naoActor ! (sender,n)
-        trace(n, (naoActor, List(sender)))
-        trace(bindings + (n -> (naoActor, List(sender))))
-        become(binding(bindings + (n -> (naoActor, List(sender)))))
+        naoActor ! (sender,s)
+        trace(s.nao, (naoActor, List(sender)))
+        trace(bindings + (s.nao -> (naoActor, List(sender))))
+        become(binding(bindings + (s.nao -> (naoActor, List(sender)))))
       }
 
       //      naoActor ! (sender, n)

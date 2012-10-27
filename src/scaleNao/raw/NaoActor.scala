@@ -10,7 +10,7 @@ private class NaoActor extends Actor {
   import context._  
 
   def receive = {
-    case (userActor: ActorRef, nao: Nao) =>
+    case (userActor: ActorRef, Subscribe(nao: Nao)) =>
       {
         trace(nao + " comes in")
         if (isConnectable(nao)) {

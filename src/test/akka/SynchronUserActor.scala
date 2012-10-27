@@ -14,7 +14,7 @@ class SynchronUserActor extends Actor {
   
   override def preStart {
     trace("SimpleAkkaCommunicationTest with " + nao)
-    naoGuardian ! nao
+    naoGuardian ! Subscribe(nao)
   }
   
   def receive = {

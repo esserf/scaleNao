@@ -1,39 +1,51 @@
 package scaleNao.raw.messages
-
 import NaoAdapter.value.Hawactormsg.MixedValue
 import NaoAdapter.value.Mixer
 
+trait DataMessage
+trait InMessage
+trait OutMessage
 
-  trait DataMessage
-  trait InMessage
-  trait OutMessage
+case class Call(module: Module, method: Method, parameters: List[MixedValue] = Nil) extends DataMessage with OutMessage {
+  override def toString = "Call(" + module.title + "." + method.title + "(" + params + "))"
+  def actorName = "Call:" + module.title + "." + method.title + ":" + params + ""
 
-  case class Call(module: Module, method: Method, parameters: List[MixedValue] = Nil) extends DataMessage with OutMessage {
-    override def toString = "Call(" + module.title + "." + method.title + "(" +  params + "))"
-    def actorName = "Call:" + module.title + "." + method.title + ":" +  params + ""
-
-    private def params = {
-      if (parameters.isEmpty)
-        ""
-      else
-        parameters.map(x => Mixer.toString(x)).reduceLeft((r,x) => (r + "," + x))
-    }
+  private def params = {
+    if (parameters.isEmpty)
+      ""
+    else
+      parameters.map(x => Mixer.toString(x)).reduceLeft((r, x) => (r + "," + x))
   }
-  case object Call
+}
+case object Call
 
-  case class Answer(val call: Call, val value: MixedValue) extends DataMessage with OutMessage {
-    override def toString = "Answer(" + call + ": " + Mixer.toString(value) + ")"
-  }
-  case object Answer
+case class Answer(val call: Call, val value: MixedValue) extends DataMessage with InMessage {
+  override def toString = "Answer(" + call + ": " + Mixer.toString(value) + ")"
+}
+case object Answer
 
-  trait Event extends DataMessage with InMessage
+trait Event extends DataMessage with InMessage
 
-  case class Module(title: String)
-  case object Module
+case class Module(title: String)
+case object Module
 
-  case class Method(title: String)
-  case object Method
- 
+case class Method(title: String)
+case object Method
+
+case class InvalidCall(c: Call) extends OutMessage with ErrorMessage
+case object InvalidCall
+
+case class InvalidAnswer(c: Call) extends InMessage with ErrorMessage
+case object InvalidAnswer
+
+case class AnswerTimedOut(c: Call) extends InMessage with ErrorMessage
+case object AnswerTimedOut
+
+// too heavy
+//case class CallReceived(c:Call) extends Subscribing with InfoMessage
+//case object CallReceived
+
+
 object Conversions {
 
   implicit def string2Mixed(s: String) = MixedValue.newBuilder().setString(s).build()
