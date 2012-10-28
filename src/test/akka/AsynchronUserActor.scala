@@ -18,7 +18,7 @@ class AsynchronUserActor extends Actor {
   }
 
   val f = 1
-  val num = 10
+  val num = 20
 
   def receive = {
     case Subscribed(nao) => {
@@ -27,6 +27,7 @@ class AsynchronUserActor extends Actor {
         sender ! Call('ALTextToSpeech, 'say, List(("Asynchron" + i) * f))
       become(answer(sender, System.currentTimeMillis))
     }
+    case NotSubscribable(nao) => trace(nao + " is not subscribable")
     case x => wrongMessage(x)
   }
   def answer(userActor: ActorRef, t0: Long, n: Int = 1): Receive = {
@@ -41,6 +42,7 @@ class AsynchronUserActor extends Actor {
       } else
         become(answer(userActor, t0, n + 1))
     }
+    case NotSubscribable(nao) => trace(nao + " is not subscribable")
     case x => wrongMessage(x)
   }
   def trace(a: Any) = log.info(a.toString)

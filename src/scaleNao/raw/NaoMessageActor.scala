@@ -17,7 +17,7 @@ class NaoMessageActor extends Actor {
   
   object zMQ {
     import org.zeromq.ZContext
-    def context = new ZContext
+    val context = new ZContext
     def socket(cont: ZContext = context, url: String) = {
       import org.zeromq.ZMQ._
       val socket = cont.createSocket(REQ)

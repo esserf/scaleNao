@@ -11,10 +11,10 @@ trait NaoInAction {
   def socket: ActorRef
   def nao: Nao
 }
-case class Available(nao: Nao, socket: ActorRef) extends NaoInAction with InfoMessage {
+case class Available(nao: Nao, socket: ActorRef) extends NaoInAction {
   def isAvailable = true
 }
-case class Unavailable(nao: Nao) extends NaoInAction with ErrorMessage {
+case class Unavailable(nao: Nao) extends NaoInAction {
   def isAvailable = false
   def socket = scaleNao.System.system.actorOf(Props[Nothing], name = "NoActor")
 }

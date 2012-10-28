@@ -17,18 +17,21 @@ case object NaoLost
 
 /**
  * scale Nao says this nao is available and subscribed
+ * documentated
  */
 case class Subscribed(nao:Nao) extends Subscribing with InfoMessage
 case object Subscribed
 
 /**
  * you say you want to subscribe this nao
+ * documentated
  */
 case class Subscribe(nao:Nao) extends Subscribing with InfoMessage
 case object Subscribe
 
 /**
  * scale Nao says that you done it already
+ * documentated
  */
 case class AlreadySubscribed(nao:Nao) extends Subscribing with ErrorMessage
 case object AlreadySubscribed
@@ -41,18 +44,21 @@ case object NaoRebound
 
 /**
  * you say scaleNao that you want to subscribe this nao
+ * documentated
  */
 case class Unsubscribe(nao:Nao) extends Subscribing with InfoMessage
 case object Unsubscribe
 
 /**
  * scale Nao says your unsubscribing is successful
+ * documentated
  */
 case class Unsubscribed(nao:Nao) extends Subscribing with InfoMessage
 case object Unsubscribed
 
 /**
  * scale Nao says you cant unsubscribe this nao
+ * documentated
  */
 case class NotUnsubscribable(nao:Nao) extends Subscribing with InfoMessage
 case object NotUnsubscribable

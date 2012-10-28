@@ -6,7 +6,10 @@ trait DataMessage
 trait InMessage
 trait OutMessage
 
-case class Call(module: Module, method: Method, parameters: List[MixedValue] = Nil) extends DataMessage with OutMessage {
+trait Calling{
+  val isDefined = true
+}
+case class Call(module: Module, method: Method, parameters: List[MixedValue] = Nil) extends DataMessage with Calling with OutMessage {
   override def toString = "Call(" + module.title + "." + method.title + "(" + params + "))"
   def actorName = "Call:" + module.title + "." + method.title + ":" + params + ""
 
@@ -19,10 +22,25 @@ case class Call(module: Module, method: Method, parameters: List[MixedValue] = N
 }
 case object Call
 
-case class Answer(val call: Call, val value: MixedValue) extends DataMessage with InMessage {
+case class InvalidCall(call: Call) extends OutMessage with Calling with ErrorMessage {
+  override val isDefined = false 
+}
+case object InvalidCall
+
+
+trait Answering{
+  val call:Call
+}
+case class Answer(override val call: Call, value: MixedValue) extends DataMessage with InMessage with Answering{
   override def toString = "Answer(" + call + ": " + Mixer.toString(value) + ")"
 }
 case object Answer
+
+case class InvalidAnswer(override val call: Call) extends InMessage with ErrorMessage with Answering
+case object InvalidAnswer
+
+case class AnswerTimedOut(override val call: Call) extends InMessage with ErrorMessage with Answering
+case object AnswerTimedOut
 
 trait Event extends DataMessage with InMessage
 
@@ -32,14 +50,6 @@ case object Module
 case class Method(title: String)
 case object Method
 
-case class InvalidCall(c: Call) extends OutMessage with ErrorMessage
-case object InvalidCall
-
-case class InvalidAnswer(c: Call) extends InMessage with ErrorMessage
-case object InvalidAnswer
-
-case class AnswerTimedOut(c: Call) extends InMessage with ErrorMessage
-case object AnswerTimedOut
 
 // too heavy
 //case class CallReceived(c:Call) extends Subscribing with InfoMessage

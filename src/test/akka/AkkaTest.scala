@@ -5,7 +5,7 @@ import akka.actor.Props
 
 /**
  * TODO Events
- * TODO erkennen, dass der Nao nicht erreichbar ist
+ * TODO Unsubscribing
  * TODO Shutdown
  * TODO Superviser auf Herz und Nieren prüfen
  */
