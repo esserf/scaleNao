@@ -46,13 +46,32 @@ class NaoGuardian extends Actor {
       } else {
         trace("new nao")
         val naoActor = context.actorOf(Props[NaoActor])
-        naoActor ! (sender,s)
+        context.watch(naoActor)
+        naoActor ! (sender, s)
         trace(s.nao, (naoActor, List(sender)))
         trace(bindings + (s.nao -> (naoActor, List(sender))))
         become(binding(bindings + (s.nao -> (naoActor, List(sender)))))
       }
-
-      //      naoActor ! (sender, n)
+    }
+    case s: Unsubscribe => {
+      val bind = bindings.get(s.nao)
+      trace(s + " " + trace(bind + " Unsubscribe"))
+      trace(bind + " Unsubscribe")
+      if (bind.isDefined) {
+        trace("nao is defined")
+        if (bind.get._2.contains(sender)) {
+          context.stop(bind.get._1)
+          trace("stop " + bind.get._1)
+          sender ! Unsubscribed(s.nao)
+          if (bind.get._2.size == 1)
+            become(binding(bindings - (s.nao)))
+          else
+            become(binding(bindings + (s.nao -> (bind.get._1, bind.get._2 - sender))))
+        } else
+          sender ! NotUnsubscribable(s.nao)
+      } else {
+        sender ! NotUnsubscribable(s.nao)
+      }
     }
     case x => wrongMessage(x, "receive")
   }
