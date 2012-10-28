@@ -8,7 +8,7 @@ object SimpleRequestTest extends App {
   val hanna = "tcp://192.168.1.121:5555"
   val local = "tcp://127.0.0.1:5555"
     
-  new SimpleRequest(nila).say("Hallo")
+  new SimpleRequest(local).getVolume
 }
 
   
