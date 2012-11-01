@@ -26,9 +26,10 @@ class NaoGuardian extends Actor {
     case s: Subscribe => {
       val naoActor = context.actorOf(Props[NaoActor])
       context.watch(naoActor)
-      naoActor ! (sender, s)
+      naoActor.forward(s)
       become(binding(new HashMap() + (s.nao -> (naoActor, List(sender)))))
     }
+    case Unsubscribe(n) => sender ! NotUnsubscribable(n)
     case x => wrongMessage(x, "receive")
   }
 
@@ -39,7 +40,7 @@ class NaoGuardian extends Actor {
       if (bind.isDefined) {
         trace("nao is defined")
         if (!bind.get._2.contains(sender)) {
-          bind.get._1 ! sender
+          bind.get._1.forward(s)
           become(binding(bindings + (s.nao -> (bind.get._1, sender :: bind.get._2))))
         } else
           sender ! AlreadySubscribed(s.nao)
@@ -47,7 +48,7 @@ class NaoGuardian extends Actor {
         trace("new nao")
         val naoActor = context.actorOf(Props[NaoActor])
         context.watch(naoActor)
-        naoActor ! (sender, s)
+        naoActor.forward(s)
         trace(s.nao, (naoActor, List(sender)))
         trace(bindings + (s.nao -> (naoActor, List(sender))))
         become(binding(bindings + (s.nao -> (naoActor, List(sender)))))
@@ -55,18 +56,21 @@ class NaoGuardian extends Actor {
     }
     case s: Unsubscribe => {
       val bind = bindings.get(s.nao)
-      trace(s + " " + trace(bind + " Unsubscribe"))
+      trace("Unsubscribe: " + bind)
       trace(bind + " Unsubscribe")
       if (bind.isDefined) {
         trace("nao is defined")
-        if (bind.get._2.contains(sender)) {
-          context.stop(bind.get._1)
-          trace("stop " + bind.get._1)
-          sender ! Unsubscribed(s.nao)
-          if (bind.get._2.size == 1)
-            become(binding(bindings - (s.nao)))
-          else
+        if (bind.get._2.contains(sender)) {         
+          if (bind.get._2.size == 1){
+            bind.get._1.forward(s)
+//            context.stop(bind.get._1)
+//            trace("stop " + bind.get._1)
+            become(binding(bindings - (s.nao)))            
+          }
+          else{
+            bind.get._1.forward(s)
             become(binding(bindings + (s.nao -> (bind.get._1, bind.get._2 - sender))))
+          }
         } else
           sender ! NotUnsubscribable(s.nao)
       } else {
@@ -74,6 +78,7 @@ class NaoGuardian extends Actor {
       }
     }
     case x => wrongMessage(x, "receive")
+//    case 
   }
 
   private def trace(a: Any) = if (LogConf.NaoGuardian.info) log.info(a.toString)

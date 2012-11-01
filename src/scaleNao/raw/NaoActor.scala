@@ -4,6 +4,7 @@ import akka.actor.Actor
 import akka.actor.ActorRef
 import akka.actor.Props
 import akka.actor.Status.Success
+import akka.dispatch.Future
 
 private class NaoActor extends Actor {
 
@@ -11,27 +12,28 @@ private class NaoActor extends Actor {
   import scaleNao.raw.messages.Conversions
   import context._
 
+  private case object NaoTimeOut
+
   def receive = {
-    case (userActor: ActorRef, Subscribe(nao: Nao)) =>
+    case Subscribe(nao: Nao) =>
       {
         trace(nao + " comes in")
         check(nao)
-        become(checkConnection(userActor, nao))
+        become(checkConnection(sender, nao))
       }
 
     case x => wrongMessage(x, "receive")
 
   }
 
-  def check(nao: Nao):Unit = {
+  private def check(nao: Nao): Unit = {
     import akka.util.Duration
-    // isConnectable
     val messageActor = context.actorOf(Props[NaoMessageActor])
     import akka.pattern.ask
     val f = messageActor.ask(nao, self, Call(Module("test"), Method("test")))(Duration(5, "seconds"))
     f onFailure {
       case x => {
-        self ! 'Fail
+        self ! NaoTimeOut
         check(nao)
       }
     }
@@ -45,21 +47,24 @@ private class NaoActor extends Actor {
   }
 
   private def communicating(n: Nao): Receive = {
-    case userActor: ActorRef => {
-      userActor ! Subscribed(n)
+    case Subscribe => {
+      sender ! Subscribed(n)
+    }
+    case Unsubscribe => {
+      sender ! Unsubscribed(n)
     }
     case c: OutMessage => {
       val messageActor = context.actorOf(Props[NaoMessageActor])
       trace("request: " + c + " " + messageActor)
       messageActor ! (n, sender, c)
     }
+    case c: Answering =>
     case x => wrongMessage(x, "communicating")
   }
 
   /**
    * TODO isConnectable: is not implemented yet
    */
-
   private def checkConnection(userActor: ActorRef, nao: Nao, waiters: List[ActorRef] = Nil): Receive = {
     case c: Answering => {
       trace("is available")
@@ -68,15 +73,21 @@ private class NaoActor extends Actor {
         w ! Subscribed(nao)
       become(communicating(nao))
     }
-    case 'Fail => {
+    case NaoTimeOut => {
       trace("is NOT available")
       userActor ! NotSubscribable(nao)
       for (w <- waiters)
         w ! NotSubscribable(nao)
-      //context.stop(self)
     }
-    case r: ActorRef => {
-      become(checkConnection(userActor, nao, r :: waiters))
+    case Subscribe(n) => {
+      if (n == nao)
+        become(checkConnection(userActor, nao, sender :: waiters))
+    }
+    case Unsubscribe(n) => {
+      if (n == nao || waiters.contains(sender)) {
+        become(checkConnection(userActor, nao, waiters - sender))
+        sender ! Unsubscribed(n)
+      } 
     }
     case x => wrongMessage(x, "checkConnection")
   }

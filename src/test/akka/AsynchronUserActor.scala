@@ -6,7 +6,7 @@ import scaleNao.raw.messages.Subscribed
 import akka.actor.Actor
 import akka.actor.ActorRef
 
-class AsynchronUserActor extends Actor {
+class AsynchronUserActor(val unsub: Boolean = false) extends Actor {
   import context._
 
   val naoGuardian = scaleNao.System.naoGuardian
@@ -37,7 +37,7 @@ class AsynchronUserActor extends Actor {
     }
     case x => wrongMessage(x)
   }
-  def answer(userActor: ActorRef, t0: Long, n: Int = 1): Receive = {
+  def answer(userActor: ActorRef, t0: Long, n: Int = 1,not:Int = 0): Receive = {
     case x: Answer => {
       trace("Answer(" + n + "):" + x + " (" + (System.currentTimeMillis - t0) / n + "ms)")
       if (n % num == 0) {
@@ -50,12 +50,22 @@ class AsynchronUserActor extends Actor {
         become(answer(userActor, t0, n + 1))
     }
     case NotSubscribable(nao) =>{
-      trace(nao + " is not subscribable and unsubscribe")
-      naoGuardian ! Unsubscribe(nao)
+      if (unsub){
+    	  trace(nao + " is not subscribable and unsubscribe")
+          naoGuardian ! Unsubscribe(nao)
+      }
+      else
+    	  trace(nao + " is not subscribable")
     }
     case x:Unsubscribed => {
       trace(nao + " is unsubscribed")
       context.stop(self)
+    }    
+    case Subscribed(nao) => {
+      trace("naoActor received: " + (nao, sender))
+      for (i <- 0 to num)
+        sender ! Call('ALTextToSpeech, 'say, List(("Asynchron" + i) * f))
+      become(answer(sender, System.currentTimeMillis))
     }
     case x => wrongMessage(x)
   }

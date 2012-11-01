@@ -16,8 +16,10 @@ object AkkaTest extends App {
 
   speedTest
   def speedTest {
-    for (i <- 0 to 8)
-      system.actorOf(Props[AsynchronUserActor], "UserActor"+i)
+    for (i <- 0 to 3)
+      system.actorOf(Props(new AsynchronUserActor(true)), "UserActorUnsub"+i)
+    for (i <- 0 to 3)
+      system.actorOf(Props(new AsynchronUserActor(false)), "UserActor----"+i)
   }
 
   def realTest {
