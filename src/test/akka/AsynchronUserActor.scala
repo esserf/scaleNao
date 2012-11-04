@@ -16,6 +16,13 @@ class AsynchronUserActor(val unsub: Boolean = false) extends Actor {
     trace("SimpleAkkaCommunicationTest with " + nao)
     naoGuardian ! Subscribe(nao)
   }
+  
+  def send(a:ActorRef) = {
+//    for (i <- 0 to num)
+      a ! Call('ALTextToSpeech, 'say, List(("Asynchron" ) * f))
+    for (i <- 0 to num)
+      a ! Call('ALTextToSpeech, 'getVolume)
+  }
 
   val f = 1
   val num = 20
@@ -23,48 +30,42 @@ class AsynchronUserActor(val unsub: Boolean = false) extends Actor {
   def receive = {
     case Subscribed(nao) => {
       trace("naoActor received: " + (nao, sender))
-      for (i <- 0 to num)
-        sender ! Call('ALTextToSpeech, 'say, List(("Asynchron" + i) * f))
+      send(sender)
       become(answer(sender, System.currentTimeMillis))
     }
     case NotSubscribable(nao) => {
       trace(nao + " is not subscribable")
       become(answer(sender, System.currentTimeMillis))
     }
-    case x:Unsubscribed => {
+    case x: Unsubscribed => {
       trace(nao + " is unsubscribed")
       context.stop(self)
     }
     case x => wrongMessage(x)
   }
-  def answer(userActor: ActorRef, t0: Long, n: Int = 1,not:Int = 0): Receive = {
+  def answer(userActor: ActorRef, t0: Long, n: Int = 1, not: Int = 0): Receive = {
     case x: Answer => {
       trace("Answer(" + n + "):" + x + " (" + (System.currentTimeMillis - t0) / n + "ms)")
       if (n % num == 0) {
-        for (i <- 0 to num)
-          userActor ! Call('ALTextToSpeech, 'say, List(("Asynchron" + i) * f))
-        for (i <- 0 to num)
-          userActor ! Call('ALTextToSpeech, 'getVolume)
+        send(userActor)
         become(answer(userActor, t0, (n + 1)))
       } else
         become(answer(userActor, t0, n + 1))
     }
-    case NotSubscribable(nao) =>{
-      if (unsub){
-    	  trace(nao + " is not subscribable and unsubscribe")
-          naoGuardian ! Unsubscribe(nao)
-      }
-      else
-    	  trace(nao + " is not subscribable")
+    case NotSubscribable(nao) => {
+      if (unsub) {
+        trace(nao + " is not subscribable and unsubscribe")
+        naoGuardian ! Unsubscribe(nao)
+      } else
+        trace(nao + " is not subscribable")
     }
-    case x:Unsubscribed => {
+    case Unsubscribed(nao) => {
       trace(nao + " is unsubscribed")
       context.stop(self)
-    }    
+    }
     case Subscribed(nao) => {
       trace("naoActor received: " + (nao, sender))
-      for (i <- 0 to num)
-        sender ! Call('ALTextToSpeech, 'say, List(("Asynchron" + i) * f))
+      send(userActor)
       become(answer(sender, System.currentTimeMillis))
     }
     case x => wrongMessage(x)

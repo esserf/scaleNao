@@ -10,12 +10,12 @@ package NaoAdapter.jnaoqi;
 
 final public class Variant {
   private long swigCPtr;
-  protected boolean swigCMemOwn;
-
-  private Variant(long cPtr, boolean cMemoryOwn) {
-    swigCMemOwn = cMemoryOwn;
-    swigCPtr = cPtr;
-  }
+//  protected boolean swigCMemOwn;
+//
+//  private Variant(long cPtr, boolean cMemoryOwn) {
+//    swigCMemOwn = cMemoryOwn;
+//    swigCPtr = cPtr;
+//  }
 
   public static long getCPtr(Variant obj) {
     return (obj == null) ? 0 : obj.swigCPtr;
@@ -167,19 +167,19 @@ final public class Variant {
       return swigName;
     }
 
-    public static typeV swigToEnum(int swigValue) {
-      if (swigValue < swigValues.length && swigValue >= 0 && swigValues[swigValue].swigValue == swigValue)
-        return swigValues[swigValue];
-      for (int i = 0; i < swigValues.length; i++)
-        if (swigValues[i].swigValue == swigValue)
-          return swigValues[i];
-      throw new IllegalArgumentException("No enum " + typeV.class + " with value " + swigValue);
-    }
+//    public static typeV swigToEnum(int swigValue) {
+//      if (swigValue < swigValues.length && swigValue >= 0 && swigValues[swigValue].swigValue == swigValue)
+//        return swigValues[swigValue];
+//      for (int i = 0; i < swigValues.length; i++)
+//        if (swigValues[i].swigValue == swigValue)
+//          return swigValues[i];
+//      throw new IllegalArgumentException("No enum " + typeV.class + " with value " + swigValue);
+//    }
 
-    private typeV(String swigName) {
-      this.swigName = swigName;
-      this.swigValue = swigNext++;
-    }
+//    private typeV(String swigName) {
+//      this.swigName = swigName;
+//      this.swigValue = swigNext++;
+//    }
 
     private typeV(String swigName, int swigValue) {
       this.swigName = swigName;
@@ -187,11 +187,11 @@ final public class Variant {
       swigNext = swigValue+1;
     }
 
-    private typeV(String swigName, typeV swigEnum) {
-      this.swigName = swigName;
-      this.swigValue = swigEnum.swigValue;
-      swigNext = this.swigValue+1;
-    }
+//    private typeV(String swigName, typeV swigEnum) {
+//      this.swigName = swigName;
+//      this.swigValue = swigEnum.swigValue;
+//      swigNext = this.swigValue+1;
+//    }
 
     private static typeV[] swigValues = { VINT, VBOOL, VSTRING, VCHARARRAY, VFLOATARRAY, VARRAY, VINTARRAY, VFLOAT, VBINARY };
     private static int swigNext = 0;

@@ -14,11 +14,11 @@ object AkkaTest extends App {
   import scaleNao.System._
   import test._
 
-  speedTest
-  def speedTest {
-    for (i <- 0 to 3)
+  speedTest(40)
+  def speedTest(num:Int) {
+    for (i <- 0 to num)
       system.actorOf(Props(new AsynchronUserActor(true)), "UserActorUnsub"+i)
-    for (i <- 0 to 3)
+    for (i <- 0 to num)
       system.actorOf(Props(new AsynchronUserActor(false)), "UserActor----"+i)
   }
 

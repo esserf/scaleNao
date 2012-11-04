@@ -12,7 +12,7 @@ private class NaoActor extends Actor {
   import scaleNao.raw.messages.Conversions
   import context._
 
-  private case object NaoTimeOut
+  
 
   def receive = {
     case Subscribe(nao: Nao) =>
@@ -59,6 +59,7 @@ private class NaoActor extends Actor {
       messageActor ! (n, sender, c)
     }
     case c: Answering =>
+    case NaoTimeOut =>
     case x => wrongMessage(x, "communicating")
   }
 
@@ -84,7 +85,7 @@ private class NaoActor extends Actor {
         become(checkConnection(userActor, nao, sender :: waiters))
     }
     case Unsubscribe(n) => {
-      if (n == nao || waiters.contains(sender)) {
+      if (n == nao && waiters.contains(sender)) {
         become(checkConnection(userActor, nao, waiters - sender))
         sender ! Unsubscribed(n)
       } 
