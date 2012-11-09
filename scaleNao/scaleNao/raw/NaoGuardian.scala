@@ -3,23 +3,23 @@ package scaleNao.raw
 import scaleNao.raw.messages.Nao
 import akka.actor.Actor
 import akka.actor.Props
-//import akka.actor.OneForOneStrategy
 import scaleNao.raw.messages._
 import akka.actor.ActorRef
 import scala.collection.immutable.HashMap
-//import scala.concurrent.duration._
+import scala.concurrent.duration._
+import akka.actor.OneForOneStrategy
 
 class NaoGuardian extends Actor {
   import akka.actor.SupervisorStrategy._
   import context._
 
-//  override val supervisorStrategy =
-//    OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
-//      case _: ArithmeticException => Resume
-//      case _: NullPointerException => Restart
-//      case _: IllegalArgumentException => Stop
-//      case _: Exception => Escalate
-//    }
+  override val supervisorStrategy =
+    OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
+      case _: ArithmeticException => Resume
+      case _: NullPointerException => Restart
+      case _: IllegalArgumentException => Stop
+      case _: Exception => Escalate
+    }
 
   def receive = {
     case s: Subscribe => {
@@ -55,23 +55,17 @@ class NaoGuardian extends Actor {
     }
     case s: Unsubscribe => {
       val bind = bindings.get(s.nao)
-      trace("Unsubscribe: " + bind)
-      trace(bind + " Unsubscribe")
+      trace("Unsubscribe in: " + bind)
       if (bind.isDefined) {
         trace("nao is defined")
-        if (bind.get._2.contains(sender)) {         
-          if (bind.get._2.size == 1){
+        if (bind.get._2.contains(sender)) {
+          if (bind.get._2.size == 1) {
+            trace("letzte")
             bind.get._1.forward(s)
-//            context.stop(bind.get._1)
-//            trace("stop " + bind.get._1)
-            become(binding(bindings - (s.nao)))            
-          }
-          else{
+            become(binding(bindings - (s.nao)))
+          } else {
             bind.get._1.forward(s)
-            /**
-             * ATTENTION
-             */
-            //become(binding(bindings + (s.nao -> (bind.get._1, bind.get._2.dropWhile(x => x == sender)))))
+            become(binding(bindings + (s.nao -> (bind.get._1, remove(bind.get._2,sender)))))
           }
         } else
           sender ! NotUnsubscribable(s.nao)
@@ -80,7 +74,13 @@ class NaoGuardian extends Actor {
       }
     }
     case x => wrongMessage(x, "receive")
-//    case 
+    //    case 
+  }
+
+  // throws a MatchError exception if i isn't found in li
+  def remove[A](li: List[A], i: A) = {
+    val (head, _ :: tail) = li.span(i != _)
+    head ::: tail
   }
 
   private def trace(a: Any) = if (LogConf.NaoGuardian.info) log.info(a.toString)

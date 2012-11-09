@@ -14,12 +14,12 @@ object AkkaTest extends App {
   import scaleNao.System._
   import test._
 
-  smallest
+//  smallest
   def smallest = {
     system.actorOf(Props[SmallestTestActor], "SmallestTestActor")
   }
   
-//  speedTest(40)
+  speedTest(10)
   def speedTest(num:Int) {
     for (i <- 0 to num)
       system.actorOf(Props(new AsynchronUserActor(true)), "UserActorUnsub"+i)

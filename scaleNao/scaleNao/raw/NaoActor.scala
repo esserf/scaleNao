@@ -5,6 +5,7 @@ import akka.actor.ActorRef
 import akka.actor.Props
 import akka.actor.Status.Success
 import akka.util.Timeout
+import scala.concurrent.duration._
 //import scala.concurrent.duration._
 
 private class NaoActor extends Actor {
@@ -19,23 +20,23 @@ private class NaoActor extends Actor {
       check(nao)
       val checkActor = context.actorOf(Props[NaoCheckActor])
       check(nao)
-      //      context.watch(checkActor)
-      //      checkActor ! nao
-      become(checkConnection(sender, nao))
+            context.watch(checkActor)
+            checkActor ! nao
+      become(checkConnection(nao,List(sender)))
     }
     case x => wrongMessage(x, "receive")
   }
 
   private def check(nao: Nao): Unit = {
-//    val messageActor = context.actorOf(Props[NaoMessageActor])
-//    import akka.pattern.{ ask, pipe }
-//    val f = messageActor.ask(nao, self, Call(Module("test"), Method("test")))(Timeout(5 seconds))
-//    f onFailure {
-//      case x => {
-//        self ! NaoTimeOut
-//        check(nao)
-//      }
-//    }
+    val messageActor = context.actorOf(Props[NaoMessageActor])
+    import akka.pattern.{ ask, pipe }
+    val f = messageActor.ask(nao, self, Call(Module("test"), Method("test")))(Timeout(5 seconds))
+    f onFailure {
+      case x => {
+        self ! NaoTimeOut
+        check(nao)
+      }
+    }
   }
 
   /**
@@ -65,36 +66,39 @@ private class NaoActor extends Actor {
   /**
    * TODO isConnectable: is not implemented yet
    */
-  private def checkConnection(userActor: ActorRef, nao: Nao, waiters: List[ActorRef] = Nil): Receive = {
+  private def checkConnection(nao: Nao, waiters: List[ActorRef] = Nil): Receive = {
     case c: Answering => {
       trace("is available")
-      userActor ! Subscribed(nao)
       for (w <- waiters)
         w ! Subscribed(nao)
       become(communicating(nao))
     }
     case NaoTimeOut => {
       trace("is NOT available")
-      userActor ! NotSubscribable(nao)
       for (w <- waiters)
         w ! NotSubscribable(nao)
     }
     case Subscribe(n) => {
       if (n == nao)
-        become(checkConnection(userActor, nao, sender :: waiters))
+        become(checkConnection(nao, sender :: waiters))
     }
     case Unsubscribe(n) => {
+      trace("try unsubscribing: " + sender)
       if (n == nao && waiters.contains(sender)) {
-        /**
-         * ATTENTION
-         */
-        //        become(checkConnection(userActor, nao, waiters.dropWhile(x => x == sender)))
+        become(checkConnection(nao, remove(waiters,sender)))
+        trace("unsubscribing: " + sender)
         sender ! Unsubscribed(n)
       }
     }
     case x => wrongMessage(x, "checkConnection")
   }
 
+  // throws a MatchError exception if i isn't found in li
+  def remove[A](li: List[A], i: A) = {
+    val (head, _ :: tail) = li.span(i != _)
+    head ::: tail
+  }
+  
   private def trace(a: Any) = if (LogConf.NaoActor.info) log.info(a.toString)
   private def error(a: Any) = if (LogConf.NaoActor.error) log.warning(a.toString)
   private def wrongMessage(a: Any, state: String) = if (LogConf.NaoActor.wrongMessage) log.warning("wrong message: " + a + " in " + state)
