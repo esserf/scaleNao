@@ -2,14 +2,13 @@ package scaleNao.raw
 
 import akka.actor.Actor
 import akka.actor.Props
-import scaleNao.raw.messages.Nao
-//import akka.util.Timeout
-//import scala.concurrent.duration._
+
 
 private case object NaoTimeOut
 
 private class NaoCheckActor extends Actor{
  
+  import scaleNao.raw.messages.Nao
   import scaleNao.raw.messages._
   import context._
   

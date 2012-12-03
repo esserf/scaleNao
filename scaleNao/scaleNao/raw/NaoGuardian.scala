@@ -1,16 +1,18 @@
 package scaleNao.raw
 
-import scaleNao.raw.messages.Nao
 import akka.actor.Actor
 import akka.actor.Props
-import scaleNao.raw.messages._
 import akka.actor.ActorRef
-import scala.collection.immutable.HashMap
-import scala.concurrent.duration._
+
 import akka.actor.OneForOneStrategy
 
 class NaoGuardian extends Actor {
+  
   import akka.actor.SupervisorStrategy._
+  import scala.collection.immutable.HashMap
+  import scala.concurrent.duration._
+  import scaleNao.raw.messages.Nao
+  import scaleNao.raw.messages._
   import context._
 
   override val supervisorStrategy =

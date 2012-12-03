@@ -2,14 +2,11 @@ package scaleNao.raw
 
 import akka.actor.Actor
 import akka.actor.ActorRef
-import akka.zeromq.ConcurrentSocketActor
-import org.zeromq.ZMQ.Socket
 
 private class NaoSynchronActor extends Actor {
 
-  import akka.zeromq.ZMQMessage
-  import NaoAdapter.value._
-  import NaoAdapter.value.Hawactormsg._
+  import scaleNao.raw.nao.messages.NaoMessages
+  import scaleNao.raw.nao.messages.NaoMessages._
   import scaleNao.raw.messages._
   import scaleNao.raw.messages.Conversions
   import context._
@@ -47,14 +44,13 @@ private class NaoSynchronActor extends Actor {
     }
   }
   
-  import akka.zeromq.Connecting
+  import org.zeromq.ZMQ.Socket
   private def communicating(socket: Socket): Receive = {
     case c: Call => {
       trace("request: " + c)
-      socket.send(ProtoSerializer(z.MQ.request(c)),0)
-      sender ! z.MQ.answer(ProtoDeserializer(socket.recv(0)), c)
+      socket.send(NaoMessages.request(c).toByteArray,0)
+      sender ! NaoMessages.answer(socket.recv(0), c)
     }
-    case Connecting =>
     case x => wrongMessage(x, "communicating")
   }
 

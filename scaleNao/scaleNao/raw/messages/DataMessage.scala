@@ -1,6 +1,6 @@
 package scaleNao.raw.messages
 import NaoAdapter.value.Hawactormsg.MixedValue
-import NaoAdapter.value.Mixer
+import scaleNao.raw.nao.messages.Mixer
 
 trait DataMessage
 trait InMessage
