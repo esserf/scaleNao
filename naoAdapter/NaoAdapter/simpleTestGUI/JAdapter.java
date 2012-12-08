@@ -1,8 +1,9 @@
-package NaoAdapter.value;
+package NaoAdapter.simpleTestGUI;
 
 import com.google.protobuf.ByteString;
 import static NaoAdapter.jnaoqi.Variant.typeV.*;
 import NaoAdapter.jnaoqi.Variant;
+import NaoAdapter.value.Hawactormsg;
 import NaoAdapter.value.Hawactormsg.MixedValue;
 
 //Konvertierungsklasse für Variant und Protobuf.MixedValue

@@ -18,10 +18,12 @@ class AsynchronUserActor(val unsub: Boolean = false) extends Actor {
   }
   
   def send(a:ActorRef) = {
-//    for (i <- 0 to num)
-      a ! Call('ALTextToSpeech, 'say, List(("Asynchron" ) * f))
     for (i <- 0 to num)
-      a ! Call('ALTextToSpeech, 'getVolume)
+      a ! Call('ALMotion, 'setAngles, List(List("HeadYaw", "HeadPitch"), List(0F, 0F), 1F))
+    for (i <- 0 to num)
+      a ! Call('ALMotion, 'setAngles, List(List("HeadYaw", "HeadPitch"), List(0F, 0F), 1F))
+
+///      a ! Call('ALTextToSpeech, 'getVolume)
   }
 
   val f = 1

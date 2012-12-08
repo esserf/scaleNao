@@ -6,7 +6,7 @@ trait DataMessage
 trait InMessage
 trait OutMessage
 
-trait Calling{
+trait Calling {
   val isDefined = true
 }
 case class Call(module: Module, method: Method, parameters: List[MixedValue] = Nil) extends DataMessage with Calling with OutMessage {
@@ -23,15 +23,14 @@ case class Call(module: Module, method: Method, parameters: List[MixedValue] = N
 case object Call
 
 case class InvalidCall(call: Call) extends OutMessage with Calling with ErrorMessage {
-  override val isDefined = false 
+  override val isDefined = false
 }
 case object InvalidCall
 
-
-trait Answering{
-  val call:Call
+trait Answering {
+  val call: Call
 }
-case class Answer(override val call: Call, value: MixedValue) extends DataMessage with InMessage with Answering{
+case class Answer(override val call: Call, value: MixedValue) extends DataMessage with InMessage with Answering {
   override def toString = "Answer(" + call + ": " + Mixer.toString(value) + ")"
 }
 case object Answer
@@ -50,11 +49,9 @@ case object Module
 case class Method(title: String)
 case object Method
 
-
 // too heavy
 //case class CallReceived(c:Call) extends Subscribing with InfoMessage
 //case object CallReceived
-
 
 object Conversions {
 
@@ -70,5 +67,58 @@ object Conversions {
 
   implicit def symbol2String(s: Symbol) = s.name
   implicit def string2Symbol(s: String) = Symbol(s)
+
+  implicit def stringArrToMixedVal(valueArr: Iterable[String]) = {
+    val mixedVal = MixedValue.newBuilder()
+    for (value <- valueArr)
+      mixedVal.addArray(value)
+    mixedVal.build()
+  }
+
+  implicit def floatArrToMixedVal(valueArr: Iterable[Float]) = {
+    val mixedVal = MixedValue.newBuilder()
+    for (value <- valueArr)
+      mixedVal.addArray(value)
+    mixedVal.build()
+  }
+
+  implicit def boolArrToMixedVal(valueArr: Iterable[Boolean]) = {
+    val mixedVal = MixedValue.newBuilder()
+    for (value <- valueArr)
+      mixedVal.addArray(value)
+    mixedVal.build()
+  }
+
+  implicit def byteArrToMixedVal(valueArr: Iterable[Byte]) = {
+    val mixedVal = MixedValue.newBuilder()
+    for (value <- valueArr)
+      mixedVal.addArray(value)
+    mixedVal.build()
+  }
+
+  implicit def arrayToMixedVal(array: Iterable[AnyVal]) = {
+    val mixedVal = MixedValue.newBuilder()
+    for (value <- array)
+      value match {
+        case x: Int => mixedVal.addArray(x)
+        case x: Float => mixedVal.addArray(x)
+        case x: Boolean => mixedVal.addArray(x)
+        case x => throw new UnsupportedOperationException(x.getClass.toString + " is not allowed")
+      }
+    mixedVal.build()
+  }
+
+  implicit def anyToMixedVal(array: Iterable[Any]) = {
+    val mixedVal = MixedValue.newBuilder()
+    for (value <- array)
+      value match {
+        case x: Int => mixedVal.addArray(x)
+        case x: Float => mixedVal.addArray(x)
+        case x: Boolean => mixedVal.addArray(x)
+        case x: String => mixedVal.addArray(x)
+        case x => throw new UnsupportedOperationException(x.getClass.toString + " is not allowed")
+      }
+    mixedVal.build()
+  }
 
 }

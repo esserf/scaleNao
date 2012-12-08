@@ -19,14 +19,14 @@ object Mixer {
     else if (mixed.getArrayCount() > 0) {
       val s = new StringBuilder();
       s.append("[");
-      for (i <- 0 to mixed.getArrayCount) {
+      for (i <- 0 until mixed.getArrayCount) {
         s.append(Mixer.toString(mixed.getArray(i)))
-        if (i < mixed.getArrayCount)
-          s.append(" ,");
+        if (i < mixed.getArrayCount-1)
+          s.append(",");
         else
           ""
       }
-      s.append(" ]")
+      s.append("]")
       s.toString
     } else "Empty"
   }

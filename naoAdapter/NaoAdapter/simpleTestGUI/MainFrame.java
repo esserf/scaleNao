@@ -26,8 +26,7 @@ import javax.swing.ListModel;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
-import static NaoAdapter.value.JAdapter.*;
-import NaoAdapter.value.JAdapter;
+import static NaoAdapter.simpleTestGUI.JAdapter.*;
 import NaoAdapter.value.Hawactormsg.HAWActorRPCRequest;
 import NaoAdapter.value.Hawactormsg.HAWActorRPCResponse;
 import NaoAdapter.value.Hawactormsg.MixedValue;
